@@ -1,0 +1,74 @@
+# IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+target/
+
+# Eclipse
+.classpathц
+.project
+.settings/
+bin/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Java
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# Maven
+log/
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Specific to your project
+last_model.txt
+*.db
+*.db.mv.db
+*.db.trace.db
+smarthome_db.mv.db
+smarthome_db.trace.db
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+*.log
+
+echo "*.obj" >> .gitignore
+echo "*.glb" >> .gitignore
+echo "*.gltf" >> .gitignore
+echo "src/main/resources/models/*.obj" >> .gitignore
+echo "src/main/resources/models/*.glb" >> .gitignore
