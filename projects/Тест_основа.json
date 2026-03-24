@@ -1,0 +1,394 @@
+{
+  "id" : "6d1c70e3-c8f9-47d6-b39f-0c08d5cff30f",
+  "name" : "Тест основа",
+  "floors" : [ ],
+  "walls" : [ {
+    "x1" : -5.080799,
+    "z1" : -4.9156623,
+    "x2" : 4.931178,
+    "z2" : -4.8639507,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "DOOR",
+    "texture" : null,
+    "openingWidth" : 0.9,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 5.0,
+    "z1" : 5.0,
+    "x2" : -5.0,
+    "z2" : 5.0,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : -5.0,
+    "z1" : 5.0,
+    "x2" : -8.025586,
+    "z2" : 5.020021,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -8.025586,
+    "z1" : 5.020021,
+    "x2" : -7.974414,
+    "z2" : -4.9694414,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : -7.974414,
+    "z1" : -4.9694414,
+    "x2" : -5.0,
+    "z2" : -5.0,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : -5.0,
+    "z1" : -5.0,
+    "x2" : -5.0,
+    "z2" : 5.0,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "DOOR",
+    "texture" : null,
+    "openingWidth" : 0.9,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 5.0,
+    "z1" : 5.0,
+    "x2" : 5.0,
+    "z2" : -5.0,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "DOOR",
+    "texture" : null,
+    "openingWidth" : 0.9,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 5.0,
+    "z1" : -5.0,
+    "x2" : 7.9896812,
+    "z2" : -4.967412,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : 7.9896812,
+    "z1" : -5.0014243,
+    "x2" : 7.9517756,
+    "z2" : 5.002088,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : 7.9517756,
+    "z1" : 5.0361004,
+    "x2" : 5.0,
+    "z2" : 5.0,
+    "height" : 2.7,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  } ],
+  "rooms" : [ {
+    "id" : "fd3f45fd-ba3a-4ca7-82d9-7d5e8a444f13",
+    "name" : "Гостиная",
+    "vertices" : [ {
+      "x" : -5.057858467102051,
+      "y" : -4.949674606323242
+    }, {
+      "x" : 4.954118728637695,
+      "y" : -4.897963047027588
+    } ],
+    "floorHeight" : 0.0,
+    "ceilingHeight" : 2.7,
+    "floorTexture" : null,
+    "wallTexture" : null,
+    "ceilingTexture" : null
+  }, {
+    "id" : "756a8bea-6c89-4cd7-a592-c744df4d0fd9",
+    "name" : "Комната 2",
+    "vertices" : [ {
+      "x" : -5.0,
+      "y" : 5.0
+    }, {
+      "x" : -8.025586353944563,
+      "y" : 5.020021074815599
+    }, {
+      "x" : -7.974413646055438,
+      "y" : -4.9694415173867235
+    }, {
+      "x" : -5.0,
+      "y" : -5.0
+    } ],
+    "floorHeight" : 0.0,
+    "ceilingHeight" : 2.7,
+    "floorTexture" : null,
+    "wallTexture" : null,
+    "ceilingTexture" : null
+  }, {
+    "id" : "3f176637-740d-4742-97d8-9dc9861aa49e",
+    "name" : "Комната 3",
+    "vertices" : [ {
+      "x" : 5.0,
+      "y" : 5.0
+    }, {
+      "x" : 5.0,
+      "y" : -5.0
+    }, {
+      "x" : 7.989681243896484,
+      "y" : -4.967411994934082
+    }, {
+      "x" : 7.951775550842285,
+      "y" : 5.0020880699157715
+    } ],
+    "floorHeight" : 0.0,
+    "ceilingHeight" : 2.7,
+    "floorTexture" : null,
+    "wallTexture" : null,
+    "ceilingTexture" : null
+  } ],
+  "furniture" : [ {
+    "id" : "e3dff31a-6685-4ba6-88d7-730dde2a40d2",
+    "libraryId" : "lamp_pendant",
+    "name" : "Подвесная лампа",
+    "category" : "lamp",
+    "x" : 0.0056632133,
+    "y" : 0.0,
+    "z" : 0.0077044824,
+    "scale" : 0.6,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "8f3c11a6-2078-44fc-979f-cbf16072b333",
+    "libraryId" : "lamp_pendant",
+    "name" : "Подвесная лампа",
+    "category" : "lamp",
+    "x" : -6.5149903,
+    "y" : 0.0,
+    "z" : -0.03919082,
+    "scale" : 0.6,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "b079e9c9-1f49-489a-8a44-b5f0b700eab0",
+    "libraryId" : "lamp_pendant",
+    "name" : "Подвесная лампа",
+    "category" : "lamp",
+    "x" : 6.637289,
+    "y" : 0.0,
+    "z" : -0.06265622,
+    "scale" : 0.6,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "cca0f81a-dd9e-4e5f-bdc8-0bec84e92121",
+    "libraryId" : "sofa_corner",
+    "name" : "Диван угловой",
+    "category" : "furniture",
+    "x" : -4.362511,
+    "y" : 0.0,
+    "z" : 4.395769,
+    "scale" : 1.0,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "52db277c-48e9-430d-ae03-a0a2ddac32a2",
+    "libraryId" : "lamp_floor",
+    "name" : "Торшер",
+    "category" : "lamp",
+    "x" : -3.7452562,
+    "y" : 0.0,
+    "z" : 4.466165,
+    "scale" : 0.7,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "1a8837a3-9b61-496c-a866-d36dff8fb26d",
+    "libraryId" : "sensor_light",
+    "name" : "Датчик освещенности",
+    "category" : "sensor",
+    "x" : -4.6790524,
+    "y" : 0.0,
+    "z" : 3.1286376,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "10983415-a849-44ae-b877-fdbb6819edad",
+    "libraryId" : "sensor_light",
+    "name" : "Датчик освещенности",
+    "category" : "sensor",
+    "x" : -5.4229236,
+    "y" : 0.0,
+    "z" : -1.3767184,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "89acb318-03da-4786-b36f-6e3c8bf96e9f",
+    "libraryId" : "sensor_light",
+    "name" : "Датчик освещенности",
+    "category" : "sensor",
+    "x" : 0.00575486,
+    "y" : 0.0,
+    "z" : 0.73516726,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "22d5bf59-b91b-450b-9554-adadafe276fd",
+    "libraryId" : "sensor_light",
+    "name" : "Датчик освещенности",
+    "category" : "sensor",
+    "x" : 7.1121006,
+    "y" : 0.0,
+    "z" : -0.03919082,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "bc8322bf-3975-411a-977e-058c7b9f6e2f",
+    "libraryId" : "bed_double",
+    "name" : "Кровать двуспальная",
+    "category" : "furniture",
+    "x" : -6.530817,
+    "y" : 0.0,
+    "z" : 3.8795302,
+    "scale" : 1.0,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "ed8f9ff5-e78b-418b-afe0-aa000c51cd50",
+    "libraryId" : "shelf",
+    "name" : "Стеллаж",
+    "category" : "furniture",
+    "x" : -7.638711,
+    "y" : 0.0,
+    "z" : -4.6384087,
+    "scale" : 0.9,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "f2aa422c-4faf-4ce4-ade5-9544e37ee4fa",
+    "libraryId" : "wardrobe",
+    "name" : "Шкаф",
+    "category" : "furniture",
+    "x" : -7.7495003,
+    "y" : 0.0,
+    "z" : 1.6033869,
+    "scale" : 0.9,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "b99180da-f0d1-49d7-b651-61ddb2b55ed7",
+    "libraryId" : "sensor_motion",
+    "name" : "Датчик движения",
+    "category" : "sensor",
+    "x" : 2.205715,
+    "y" : 0.0,
+    "z" : -2.9489,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "f27eb01c-be35-47de-81dc-1f184f110ff2",
+    "libraryId" : "sensor_motion",
+    "name" : "Датчик движения",
+    "category" : "sensor",
+    "x" : -3.1754825,
+    "y" : 0.0,
+    "z" : -3.300881,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "c9213aed-2fd9-4971-96c0-a39b5259e7cd",
+    "libraryId" : "sensor_motion",
+    "name" : "Датчик движения",
+    "category" : "sensor",
+    "x" : 4.8171782,
+    "y" : 0.0,
+    "z" : 0.6647711,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "d6bb8b5a-d173-47f0-a5cf-3d38447aaf2e",
+    "libraryId" : "sensor_motion",
+    "name" : "Датчик движения",
+    "category" : "sensor",
+    "x" : -4.805669,
+    "y" : 0.0,
+    "z" : 0.6178403,
+    "scale" : 0.3,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "fb1d02fd-9d11-410e-ba97-c8b7bbefc31f",
+    "libraryId" : "lamp_spot",
+    "name" : "Спот",
+    "category" : "lamp",
+    "x" : 4.658908,
+    "y" : 0.0,
+    "z" : 4.653888,
+    "scale" : 0.4,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  }, {
+    "id" : "4b52d198-a1f0-498e-b6ba-bb097094eb41",
+    "libraryId" : "lamp_spot",
+    "name" : "Спот",
+    "category" : "lamp",
+    "x" : -4.7265334,
+    "y" : 0.0,
+    "z" : -4.380289,
+    "scale" : 0.4,
+    "rotation" : 0.0,
+    "deviceId" : null,
+    "params" : { }
+  } ],
+  "camera" : null,
+  "createdAt" : 1774345927177,
+  "modifiedAt" : 1774345927177
+}

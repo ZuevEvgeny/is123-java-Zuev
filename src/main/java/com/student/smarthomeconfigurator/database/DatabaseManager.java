@@ -6,7 +6,9 @@ import com.student.smarthomeconfigurator.devices.*;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DatabaseManager {
     private static DatabaseManager instance;
@@ -73,10 +75,21 @@ public class DatabaseManager {
             )
             """;
 
+        String createBuildingProjects = """
+            CREATE TABLE IF NOT EXISTS building_projects (
+                id VARCHAR(36) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                json_data CLOB,
+                created_at TIMESTAMP,
+                modified_at TIMESTAMP
+            )
+            """;
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createProjects);
             stmt.execute(createRooms);
             stmt.execute(createDevices);
+            stmt.execute(createBuildingProjects);
             System.out.println("Таблицы созданы");
         } catch (SQLException e) {
             System.err.println("Ошибка создания таблиц: " + e.getMessage());
@@ -237,6 +250,83 @@ public class DatabaseManager {
         }
         return ids;
     }
+
+    // === НОВЫЕ МЕТОДЫ ДЛЯ BUILDINGPROJECT ===
+
+    /**
+     * Сохранить BuildingProject
+     */
+    public void saveBuildingProject(String id, String name, String jsonData) {
+        String sql = "MERGE INTO building_projects (id, name, json_data, created_at, modified_at) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.setString(2, name);
+            pstmt.setString(3, jsonData);
+            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+            pstmt.setTimestamp(4, now);
+            pstmt.setTimestamp(5, now);
+            pstmt.executeUpdate();
+            System.out.println("BuildingProject сохранён: " + name);
+        } catch (SQLException e) {
+            System.err.println("Ошибка сохранения BuildingProject: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Загрузить BuildingProject
+     */
+    public String loadBuildingProject(String id) {
+        String sql = "SELECT json_data FROM building_projects WHERE id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("json_data");
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка загрузки BuildingProject: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Получить все BuildingProject (id и name)
+     */
+    public List<Map<String, String>> getAllBuildingProjects() {
+        List<Map<String, String>> projects = new ArrayList<>();
+        String sql = "SELECT id, name FROM building_projects ORDER BY modified_at DESC";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Map<String, String> project = new HashMap<>();
+                project.put("id", rs.getString("id"));
+                project.put("name", rs.getString("name"));
+                projects.add(project);
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка получения списка BuildingProject: " + e.getMessage());
+        }
+        return projects;
+    }
+
+    /**
+     * Удалить BuildingProject
+     */
+    public void deleteBuildingProject(String id) {
+        String sql = "DELETE FROM building_projects WHERE id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.executeUpdate();
+            System.out.println("BuildingProject удалён: " + id);
+        } catch (SQLException e) {
+            System.err.println("Ошибка удаления BuildingProject: " + e.getMessage());
+        }
+    }
+
 
     public void close() {
         try {

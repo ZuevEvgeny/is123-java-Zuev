@@ -1,0 +1,265 @@
+{
+  "id" : "8f0ddfa6-8b42-462d-ba40-9fd2bd3ed45e",
+  "name" : "ТЕСТ 2",
+  "floors" : [ ],
+  "walls" : [ {
+    "x1" : -4.9040513,
+    "z1" : -4.842993,
+    "x2" : 5.0,
+    "z2" : -5.0,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : 5.0,
+    "z1" : -5.0,
+    "x2" : 5.0,
+    "z2" : 5.0,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "DOOR",
+    "texture" : null,
+    "openingWidth" : 0.9,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 5.0,
+    "z1" : 5.0,
+    "x2" : -4.9722815,
+    "z2" : 4.9947314,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "DOOR",
+    "texture" : null,
+    "openingWidth" : 0.9,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -5.0,
+    "z1" : 5.0,
+    "x2" : -5.0,
+    "z2" : -5.0,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "DOOR",
+    "texture" : null,
+    "openingWidth" : 0.9,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -7.9914713,
+    "z1" : 7.978925,
+    "x2" : -8.042644,
+    "z2" : -4.9694414,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : -8.042644,
+    "z1" : -5.0706005,
+    "x2" : -5.0405116,
+    "z2" : -5.0958905,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -7.957356,
+    "z1" : 8.029505,
+    "x2" : -6.063966,
+    "z2" : 8.004215,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -6.029851,
+    "z1" : 8.004215,
+    "x2" : -4.989339,
+    "z2" : 5.1717596,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 5.006397,
+    "z1" : 4.9947314,
+    "x2" : 5.023454,
+    "z2" : 8.029505,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 5.023454,
+    "z1" : 8.029505,
+    "x2" : 6.9850745,
+    "z2" : 8.080084,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 6.9850745,
+    "z1" : 8.029505,
+    "x2" : 6.968017,
+    "z2" : -4.792413,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "WINDOW",
+    "texture" : null,
+    "openingWidth" : 1.2,
+    "openingHeight" : 1.5
+  }, {
+    "x1" : 5.023454,
+    "z1" : -5.0706005,
+    "x2" : 7.01919,
+    "z2" : -5.020021,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -4.989339,
+    "z1" : 4.9947314,
+    "x2" : -4.989339,
+    "z2" : 1.7070601,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : -4.955224,
+    "z1" : -5.0706005,
+    "x2" : -4.938166,
+    "z2" : -1.8840885,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 4.955224,
+    "z1" : 4.9947314,
+    "x2" : 4.938166,
+    "z2" : 2.0864067,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  }, {
+    "x1" : 4.989339,
+    "z1" : -5.0958905,
+    "x2" : 4.9722815,
+    "z2" : -1.5300316,
+    "height" : 3.0,
+    "thickness" : 0.2,
+    "type" : "INNER",
+    "texture" : null,
+    "openingWidth" : 0.8,
+    "openingHeight" : 2.0
+  } ],
+  "rooms" : [ {
+    "id" : "29cc651f-8d0f-489b-83bd-620d93d699ef",
+    "name" : "Гостиная",
+    "vertices" : [ {
+      "x" : -4.904051303863525,
+      "y" : -4.842992782592773
+    }, {
+      "x" : 5.0,
+      "y" : -5.0
+    }, {
+      "x" : 5.0,
+      "y" : 5.0
+    }, {
+      "x" : -4.972281455993652,
+      "y" : 4.994731426239014
+    }, {
+      "x" : -5.0,
+      "y" : -5.0
+    } ],
+    "floorHeight" : 0.0,
+    "ceilingHeight" : 2.7,
+    "floorTexture" : null,
+    "wallTexture" : null,
+    "ceilingTexture" : null
+  }, {
+    "id" : "d1ef258e-9a83-4748-a5a9-0f2be8e97516",
+    "name" : "Комната 2",
+    "vertices" : [ {
+      "x" : -5.023454157782517,
+      "y" : 5.045310853530033
+    }, {
+      "x" : -6.0127931769722816,
+      "y" : 8.004214963119075
+    }, {
+      "x" : -7.991471215351812,
+      "y" : 8.004214963119075
+    }, {
+      "x" : -8.025586353944563,
+      "y" : -5.045310853530033
+    }, {
+      "x" : -5.023454157782517,
+      "y" : -5.045310853530033
+    }, {
+      "x" : -5.040511727078892,
+      "y" : -5.070600632244467
+    } ],
+    "floorHeight" : 0.0,
+    "ceilingHeight" : 2.7,
+    "floorTexture" : null,
+    "wallTexture" : null,
+    "ceilingTexture" : null
+  }, {
+    "id" : "14f39421-5d68-49c0-a028-d694ba05ed78",
+    "name" : "Комната 3",
+    "vertices" : [ {
+      "x" : 5.023454157782517,
+      "y" : 5.045310853530033
+    }, {
+      "x" : 5.0405117270788935,
+      "y" : 8.02950474183351
+    }, {
+      "x" : 7.002132196162048,
+      "y" : 8.080084299262381
+    }, {
+      "x" : 6.985074626865675,
+      "y" : -4.944151738672286
+    }, {
+      "x" : 4.972281449893391,
+      "y" : -5.070600632244467
+    }, {
+      "x" : 4.972281449893391,
+      "y" : -4.9694415173867235
+    } ],
+    "floorHeight" : 0.0,
+    "ceilingHeight" : 2.7,
+    "floorTexture" : null,
+    "wallTexture" : null,
+    "ceilingTexture" : null
+  } ],
+  "furniture" : [ ],
+  "camera" : null,
+  "createdAt" : 1774267997860,
+  "modifiedAt" : 1774267997860
+}

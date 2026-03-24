@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.student</groupId>
-    <artifactId>smart-home-configurator</artifactId>
+    <artifactId>SmartHomeConfigurator</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -15,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.6</javafx.version>
         <lwjgl.version>3.3.3</lwjgl.version>
+        <joml.version>1.10.5</joml.version>
     </properties>
 
     <dependencies>
@@ -26,12 +26,12 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
+            <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
+            <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
@@ -58,16 +58,16 @@
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-stb</artifactId>
+            <artifactId>lwjgl-assimp</artifactId>
             <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-assimp</artifactId>
+            <artifactId>lwjgl-stb</artifactId>
             <version>${lwjgl.version}</version>
         </dependency>
 
-        <!-- Нативные библиотеки для Windows -->
+        <!-- LWJGL natives -->
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
@@ -88,22 +88,29 @@
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-stb</artifactId>
+            <artifactId>lwjgl-assimp</artifactId>
             <version>${lwjgl.version}</version>
             <classifier>natives-windows</classifier>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-assimp</artifactId>
+            <artifactId>lwjgl-stb</artifactId>
             <version>${lwjgl.version}</version>
             <classifier>natives-windows</classifier>
         </dependency>
 
-        <!-- JOML для математики -->
+        <!-- JOML -->
         <dependency>
             <groupId>org.joml</groupId>
             <artifactId>joml</artifactId>
-            <version>1.10.5</version>
+            <version>${joml.version}</version>
+        </dependency>
+
+        <!-- Jackson для JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
         </dependency>
 
         <!-- H2 Database -->
@@ -123,14 +130,6 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>com.student.smarthomeconfigurator.utils.TestRenderer</mainClass>
                 </configuration>
             </plugin>
         </plugins>

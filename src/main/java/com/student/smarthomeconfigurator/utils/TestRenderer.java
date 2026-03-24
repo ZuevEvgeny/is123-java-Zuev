@@ -2,9 +2,10 @@ package com.student.smarthomeconfigurator.utils;
 
 import com.student.smarthomeconfigurator.model.Project;
 import com.student.smarthomeconfigurator.model.Room;
-import com.student.smarthomeconfigurator.devices.*;
+import com.student.smarthomeconfigurator.model.building.*;
 import com.student.smarthomeconfigurator.modules.renderer.*;
 import com.student.smarthomeconfigurator.modules.simulator.*;
+import com.student.smarthomeconfigurator.manager.ProjectManager;
 import com.student.smarthomeconfigurator.database.DatabaseManager;
 
 import javafx.application.Application;
@@ -16,6 +17,8 @@ import javafx.stage.Stage;
 import javafx.animation.AnimationTimer;
 import javafx.stage.Screen;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public class TestRenderer extends Application {
@@ -23,6 +26,11 @@ public class TestRenderer extends Application {
     private MapRenderer currentRenderer;
     private DeviceSimulator currentSimulator;
     private DatabaseManager dbManager;
+    private ProjectManager projectManager;
+
+    private BuildingProject currentBuildingProject;
+    private PlanEditor planEditor;
+    private LWJGLRenderer lwjglRenderer;
 
     private BorderPane root;
     private Pane renderPane;
@@ -34,9 +42,12 @@ public class TestRenderer extends Application {
     public void start(Stage primaryStage) {
         createTestProject();
         dbManager = DatabaseManager.getInstance();
+        projectManager = ProjectManager.getInstance();
+
+        currentBuildingProject = new BuildingProject("Мой дом");
+        createTestWalls();
 
         root = new BorderPane();
-
         splitPane = new SplitPane();
 
         VBox leftPanel = createLeftPanel();
@@ -49,7 +60,6 @@ public class TestRenderer extends Application {
 
         splitPane.getItems().addAll(leftPanel, renderPane);
         splitPane.setDividerPositions(0.2);
-
         root.setCenter(splitPane);
 
         HBox bottomPanel = new HBox(20);
@@ -73,7 +83,7 @@ public class TestRenderer extends Application {
 
         Scene scene = new Scene(root, screenWidth * 0.8, screenHeight * 0.8);
 
-        primaryStage.setTitle("Smart Home Configurator");
+        primaryStage.setTitle("Smart Home Configurator - 3D Plan Editor");
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.setMinWidth(1024);
@@ -83,34 +93,26 @@ public class TestRenderer extends Application {
         sizeLabel.setText(String.format("Размер: %.0f x %.0f",
                 primaryStage.getWidth(), primaryStage.getHeight()));
 
-        switchRenderer(new Canvas2DRenderer());
+        switchToPlanEditor();
         startUiUpdater();
 
         primaryStage.setOnCloseRequest(e -> {
             stopSimulation();
-            if (currentRenderer != null) {
-                currentRenderer.clear();
-            }
-            if (dbManager != null) {
-                dbManager.close();
-            }
+            if (lwjglRenderer != null) lwjglRenderer.stopGL();
+            if (dbManager != null) dbManager.close();
             Platform.exit();
             System.exit(0);
         });
 
         renderPane.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (currentRenderer != null) {
-                Platform.runLater(() -> {
-                    currentRenderer.render(project, renderPane);
-                });
+            if (currentRenderer != null && !(currentRenderer instanceof LWJGLRenderer)) {
+                Platform.runLater(() -> currentRenderer.render(project, renderPane));
             }
         });
 
         renderPane.heightProperty().addListener((obs, oldVal, newVal) -> {
-            if (currentRenderer != null) {
-                Platform.runLater(() -> {
-                    currentRenderer.render(project, renderPane);
-                });
+            if (currentRenderer != null && !(currentRenderer instanceof LWJGLRenderer)) {
+                Platform.runLater(() -> currentRenderer.render(project, renderPane));
             }
         });
 
@@ -118,6 +120,35 @@ public class TestRenderer extends Application {
             sizeLabel.setText(String.format("Размер: %.0f x %.0f",
                     primaryStage.getWidth(), primaryStage.getHeight()));
         });
+    }
+
+    private void createTestWalls() {
+        currentBuildingProject.getWalls().clear();
+        currentBuildingProject.getRooms().clear();
+        currentBuildingProject.getFurniture().clear();
+
+        WallSegment wall1 = new WallSegment(-5, -5, 5, -5);
+        wall1.setHeight(3.0f);
+        currentBuildingProject.getWalls().add(wall1);
+
+        WallSegment wall2 = new WallSegment(5, -5, 5, 5);
+        wall2.setHeight(3.0f);
+        currentBuildingProject.getWalls().add(wall2);
+
+        WallSegment wall3 = new WallSegment(5, 5, -5, 5);
+        wall3.setHeight(3.0f);
+        currentBuildingProject.getWalls().add(wall3);
+
+        WallSegment wall4 = new WallSegment(-5, 5, -5, -5);
+        wall4.setHeight(3.0f);
+        currentBuildingProject.getWalls().add(wall4);
+
+        RoomArea room = new RoomArea("Гостиная");
+        room.addVertex(-5, -5);
+        room.addVertex(5, -5);
+        room.addVertex(5, 5);
+        room.addVertex(-5, 5);
+        currentBuildingProject.getRooms().add(room);
     }
 
     private VBox createLeftPanel() {
@@ -128,62 +159,45 @@ public class TestRenderer extends Application {
         Label titleLabel = new Label("SMART HOME CONFIGURATOR");
         titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;");
         leftPanel.getChildren().add(titleLabel);
-
         leftPanel.getChildren().add(new Separator());
 
-        Label renderLabel = new Label("РЕНДЕРЕР:");
+        Label renderLabel = new Label("РЕЖИМ:");
         renderLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         leftPanel.getChildren().add(renderLabel);
 
-        Button btn2D = new Button("2D Canvas");
+        Button btn2D = new Button("✏️ 2D Редактор плана");
         btn2D.setMaxWidth(Double.MAX_VALUE);
-        btn2D.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
-        btn2D.setOnAction(e -> switchRenderer(new Canvas2DRenderer()));
+        btn2D.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-color: #2196F3; -fx-text-fill: white;");
+        btn2D.setOnAction(e -> switchToPlanEditor());
 
-        Button btnLWJGL = new Button("3D");
-        btnLWJGL.setMaxWidth(Double.MAX_VALUE);
-        btnLWJGL.setStyle("-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
-        btnLWJGL.setOnAction(e -> {
-            LWJGLRenderer renderer = new LWJGLRenderer();
-            if (currentSimulator != null) {
-                renderer.setSimulator(currentSimulator);
-            }
-            switchRenderer(renderer);
-        });
+        Button btn3D = new Button("🎮 3D Просмотр");
+        btn3D.setMaxWidth(Double.MAX_VALUE);
+        btn3D.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-color: #FF9800; -fx-text-fill: white;");
+        btn3D.setOnAction(e -> switchTo3DView());
 
-        Button btnSVG = new Button("Экспорт SVG");
-        btnSVG.setMaxWidth(Double.MAX_VALUE);
-        btnSVG.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
-        btnSVG.setOnAction(e -> {
-            SvgExporter exporter = new SvgExporter();
-            exporter.render(project, renderPane);
-            exporter.exportToFile("plan.svg");
-            showAlert("Экспорт", "Файл plan.svg сохранён!");
-        });
-
-        leftPanel.getChildren().addAll(btn2D, btnLWJGL, btnSVG);
+        leftPanel.getChildren().addAll(btn2D, btn3D);
         leftPanel.getChildren().add(new Separator());
 
         Label simLabel = new Label("СИМУЛЯТОР:");
         simLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         leftPanel.getChildren().add(simLabel);
 
-        Button btnRandom = new Button("Случайная");
+        Button btnRandom = new Button("🎲 Случайная");
         btnRandom.setMaxWidth(Double.MAX_VALUE);
         btnRandom.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
         btnRandom.setOnAction(e -> switchSimulator(new RandomSimulator()));
 
-        Button btnSmart = new Button("Умный дом");
+        Button btnSmart = new Button("🏠 Умный дом");
         btnSmart.setMaxWidth(Double.MAX_VALUE);
         btnSmart.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
         btnSmart.setOnAction(e -> switchSimulator(new SmartHomeSimulator()));
 
-        Button btnManual = new Button("Ручное");
+        Button btnManual = new Button("🖐️ Ручное");
         btnManual.setMaxWidth(Double.MAX_VALUE);
         btnManual.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
         btnManual.setOnAction(e -> switchSimulator(new ManualSimulator()));
 
-        Button btnStop = new Button("Стоп");
+        Button btnStop = new Button("⏹️ Стоп");
         btnStop.setMaxWidth(Double.MAX_VALUE);
         btnStop.setStyle("-fx-background-color: #ffcccc; -fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
         btnStop.setOnAction(e -> stopSimulation());
@@ -191,26 +205,32 @@ public class TestRenderer extends Application {
         leftPanel.getChildren().addAll(btnRandom, btnSmart, btnManual, btnStop);
         leftPanel.getChildren().add(new Separator());
 
-        Label dbLabel = new Label("БАЗА ДАННЫХ:");
-        dbLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        leftPanel.getChildren().add(dbLabel);
+        Label projectLabel = new Label("ПРОЕКТ:");
+        projectLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        leftPanel.getChildren().add(projectLabel);
 
-        Button btnSave = new Button("Сохранить проект");
+        Button btnSave = new Button("💾 Сохранить проект");
         btnSave.setMaxWidth(Double.MAX_VALUE);
-        btnSave.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
-        btnSave.setOnAction(e -> {
-            if (project != null && dbManager != null) {
-                dbManager.saveProject(project);
-                showAlert("Сохранение", "Проект сохранён!");
-            }
-        });
+        btnSave.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-color: #4CAF50; -fx-text-fill: white;");
+        btnSave.setOnAction(e -> saveCurrentProject());
 
-        Button btnLoad = new Button("Загрузить проект");
+        Button btnLoad = new Button("📂 Загрузить проект");
         btnLoad.setMaxWidth(Double.MAX_VALUE);
         btnLoad.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand;");
         btnLoad.setOnAction(e -> loadProjectDialog());
 
-        leftPanel.getChildren().addAll(btnSave, btnLoad);
+        Button btnDeleteProject = new Button("🗑️ УДАЛИТЬ ПРОЕКТ");
+        btnDeleteProject.setMaxWidth(Double.MAX_VALUE);
+        btnDeleteProject.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnDeleteProject.setOnAction(e -> deleteProjectDialog());
+        leftPanel.getChildren().add(btnDeleteProject);
+
+        Button btnUpdate3D = new Button("🔄 Обновить 3D");
+        btnUpdate3D.setMaxWidth(Double.MAX_VALUE);
+        btnUpdate3D.setStyle("-fx-padding: 10; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-color: #9C27B0; -fx-text-fill: white;");
+        btnUpdate3D.setOnAction(e -> update3DFromCurrentPlan());
+
+        leftPanel.getChildren().addAll(btnSave, btnLoad, btnUpdate3D);
         leftPanel.getChildren().add(new Separator());
 
         Region spacer = new Region();
@@ -220,57 +240,195 @@ public class TestRenderer extends Application {
         return leftPanel;
     }
 
-    private void createTestProject() {
-        project = new Project("Мой Умный Дом");
+    private void update3DFromCurrentPlan() {
+        if (planEditor != null) {
+            currentBuildingProject = planEditor.getBuildingProject();
+            statusLabel.setText("📐 План обновлен: " + currentBuildingProject.getWalls().size() + " стен, " +
+                    currentBuildingProject.getRooms().size() + " комнат");
 
-        Room livingRoom = new Room("Гостиная", 50, 50, 300, 200);
-        livingRoom.addDevice(new LightSensor(livingRoom.getId()));
-        livingRoom.addDevice(new TemperatureSensor(livingRoom.getId()));
-        livingRoom.addDevice(new Lamp(livingRoom.getId()));
-        livingRoom.addDevice(new Lamp(livingRoom.getId(), true));
-        project.addRoom(livingRoom);
-
-        Room bedroom = new Room("Спальня", 400, 50, 250, 180);
-        bedroom.addDevice(new LightSensor(bedroom.getId()));
-        bedroom.addDevice(new Lamp(bedroom.getId()));
-        bedroom.addDevice(new MotionSensor(bedroom.getId()));
-        project.addRoom(bedroom);
-
-        Room kitchen = new Room("Кухня", 50, 300, 280, 220);
-        kitchen.addDevice(new TemperatureSensor(kitchen.getId()));
-        kitchen.addDevice(new Lamp(kitchen.getId()));
-        kitchen.addDevice(new SmokeSensor(kitchen.getId()));
-        project.addRoom(kitchen);
-
-        Room bathroom = new Room("Ванная", 400, 300, 200, 150);
-        bathroom.addDevice(new HumiditySensor(bathroom.getId()));
-        bathroom.addDevice(new Lamp(bathroom.getId()));
-        project.addRoom(bathroom);
+            if (lwjglRenderer != null && currentRenderer instanceof LWJGLRenderer) {
+                lwjglRenderer.loadBuildingProject(currentBuildingProject);
+            }
+        } else {
+            statusLabel.setText("❌ Сначала откройте 2D редактор");
+        }
     }
 
-    private void switchRenderer(MapRenderer renderer) {
-        if (currentRenderer != null) {
-            currentRenderer.clear();
+    private void deleteProjectDialog() {
+        List<ProjectManager.ProjectInfo> projects = projectManager.getProjectList();
+        if (projects.isEmpty()) {
+            showAlert("Удаление", "Нет проектов для удаления!");
+            return;
         }
 
-        this.currentRenderer = renderer;
-        renderPane.getChildren().clear();
+        ChoiceDialog<ProjectManager.ProjectInfo> dialog = new ChoiceDialog<>(projects.get(0), projects);
+        dialog.setTitle("Удаление проекта");
+        dialog.setHeaderText("Выберите проект для удаления:");
+
+        Optional<ProjectManager.ProjectInfo> result = dialog.showAndWait();
+        result.ifPresent(projectInfo -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Подтверждение");
+            confirm.setHeaderText("Удалить проект?");
+            confirm.setContentText("Вы уверены, что хотите удалить проект \"" + projectInfo.name + "\"?");
+            confirm.initOwner(root.getScene().getWindow());
+
+            Optional<ButtonType> confirmResult = confirm.showAndWait();
+            if (confirmResult.isPresent() && confirmResult.get() == ButtonType.OK) {
+                try {
+                    if ("database".equals(projectInfo.source)) {
+                        dbManager.deleteBuildingProject(projectInfo.id);
+                    } else {
+                        // Удаляем файл
+                        java.nio.file.Files.deleteIfExists(
+                                java.nio.file.Paths.get("projects/" + projectInfo.id + ".json")
+                        );
+                    }
+                    statusLabel.setText("✅ Проект \"" + projectInfo.name + "\" удален");
+                } catch (Exception ex) {
+                    statusLabel.setText("❌ Ошибка удаления: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void switchToPlanEditor() {
+        if (lwjglRenderer != null) {
+            lwjglRenderer.stopGL();
+            lwjglRenderer = null;
+        }
+
+        if (currentRenderer != null) currentRenderer.clear();
+
+        planEditor = new PlanEditor();
+        if (currentBuildingProject != null) planEditor.setBuildingProject(currentBuildingProject);
+        this.currentRenderer = planEditor;
 
         Platform.runLater(() -> {
+            renderPane.getChildren().clear();
             currentRenderer.render(project, renderPane);
-            statusLabel.setText("Рендерер: " + renderer.getName());
+            statusLabel.setText("Режим: 2D Редактор плана");
         });
+    }
+
+    private void switchTo3DView() {
+        if (planEditor != null) {
+            currentBuildingProject = planEditor.getBuildingProject();
+            planEditor = null;
+        }
+
+        if (lwjglRenderer != null) {
+            lwjglRenderer.stopGL();
+            lwjglRenderer = null;
+        }
+
+        if (currentRenderer != null) currentRenderer.clear();
+
+        lwjglRenderer = new LWJGLRenderer();
+        if (currentSimulator != null) lwjglRenderer.setSimulator(currentSimulator);
+
+        if (currentBuildingProject != null) {
+            lwjglRenderer.loadBuildingProject(currentBuildingProject);
+        }
+
+        this.currentRenderer = lwjglRenderer;
+
+        Platform.runLater(() -> {
+            renderPane.getChildren().clear();
+            currentRenderer.render(project, renderPane);
+            statusLabel.setText("Режим: 3D Просмотр");
+        });
+    }
+
+    private void saveCurrentProject() {
+        if (planEditor != null) {
+            currentBuildingProject = planEditor.getBuildingProject();
+        }
+
+        if (currentBuildingProject != null) {
+            TextInputDialog dialog = new TextInputDialog(currentBuildingProject.getName());
+            dialog.setTitle("Сохранение проекта");
+            dialog.setHeaderText("Введите название проекта:");
+            dialog.setContentText("Название:");
+            dialog.initOwner(root.getScene().getWindow());
+
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(name -> {
+                if (!name.trim().isEmpty()) {
+                    String oldName = currentBuildingProject.getName();
+                    currentBuildingProject.setName(name.trim());
+
+                    try {
+                        String filename = name.trim().replace(" ", "_") + ".json";
+                        projectManager.saveToFile(currentBuildingProject, filename);
+                        projectManager.saveToDatabase(currentBuildingProject);
+                        statusLabel.setText("✅ Проект сохранен: " + name +
+                                " (" + currentBuildingProject.getWalls().size() + " стен)");
+                    } catch (Exception e) {
+                        statusLabel.setText("❌ Ошибка сохранения: " + e.getMessage());
+                        e.printStackTrace();
+                        currentBuildingProject.setName(oldName);
+                    }
+                }
+            });
+        }
+    }
+
+    private void loadProjectDialog() {
+        java.util.List<ProjectManager.ProjectInfo> projects = projectManager.getProjectList();
+        if (projects.isEmpty()) {
+            showAlert("Загрузка", "Нет сохранённых проектов!");
+            return;
+        }
+
+        ChoiceDialog<ProjectManager.ProjectInfo> dialog = new ChoiceDialog<>(projects.get(0), projects);
+        dialog.setTitle("Загрузка проекта");
+        dialog.setHeaderText("Выберите проект:");
+
+        Optional<ProjectManager.ProjectInfo> result = dialog.showAndWait();
+        result.ifPresent(projectInfo -> {
+            BuildingProject loaded = null;
+            if ("database".equals(projectInfo.source)) {
+                loaded = projectManager.loadFromDatabase(projectInfo.id);
+            } else {
+                try {
+                    loaded = projectManager.loadFromFile(projectInfo.id + ".json");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    statusLabel.setText("❌ Ошибка загрузки: " + e.getMessage());
+                }
+            }
+
+            if (loaded != null) {
+                currentBuildingProject = loaded;
+                statusLabel.setText("✅ Проект загружен: " + loaded.getName() +
+                        " (" + loaded.getWalls().size() + " стен)");
+
+                if (currentRenderer instanceof PlanEditor && planEditor != null) {
+                    planEditor.setBuildingProject(currentBuildingProject);
+                    currentRenderer.render(project, renderPane);
+                } else if (currentRenderer instanceof LWJGLRenderer && lwjglRenderer != null) {
+                    lwjglRenderer.loadBuildingProject(currentBuildingProject);
+                    currentRenderer.render(project, renderPane);
+                }
+            }
+        });
+    }
+
+    private void createTestProject() {
+        project = new Project("Мой Умный Дом");
+        Room livingRoom = new Room("Гостиная", 50, 50, 300, 200);
+        project.addRoom(livingRoom);
+        Room bedroom = new Room("Спальня", 400, 50, 250, 180);
+        project.addRoom(bedroom);
     }
 
     private void switchSimulator(DeviceSimulator simulator) {
         stopSimulation();
         this.currentSimulator = simulator;
         simulator.startSimulation(project);
-
-        if (currentRenderer instanceof LWJGLRenderer) {
-            ((LWJGLRenderer) currentRenderer).setSimulator(simulator);
-        }
-
+        if (lwjglRenderer != null) lwjglRenderer.setSimulator(simulator);
         statusLabel.setText("Симулятор: " + simulator.getName());
     }
 
@@ -283,47 +441,18 @@ public class TestRenderer extends Application {
     }
 
     private void startUiUpdater() {
+        // Таймер только для обновления 2D отображения датчиков (если нужно)
+        // PlanEditor перерисовывается по событиям мыши, поэтому не нужно постоянно вызывать render
         uiUpdater = new AnimationTimer() {
-            private long lastUpdate = 0;
             @Override
             public void handle(long now) {
-                if (lastUpdate == 0) { lastUpdate = now; return; }
-                if ((now - lastUpdate) > 500_000_000) {
-                    if (currentRenderer != null &&
-                            (currentRenderer instanceof Canvas2DRenderer)) {
-                        currentRenderer.render(project, renderPane);
-                    }
-                    lastUpdate = now;
+                // Не перерисовываем PlanEditor автоматически
+                if (currentRenderer != null && !(currentRenderer instanceof PlanEditor) && !(currentRenderer instanceof LWJGLRenderer)) {
+                    currentRenderer.render(project, renderPane);
                 }
             }
         };
         uiUpdater.start();
-    }
-
-    private void loadProjectDialog() {
-        if (dbManager == null) return;
-        java.util.List<String> projectIds = dbManager.getAllProjectIds();
-        if (projectIds.isEmpty()) {
-            showAlert("Загрузка", "Нет сохранённых проектов!");
-            return;
-        }
-
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(projectIds.get(0), projectIds);
-        dialog.setTitle("Загрузка проекта");
-        dialog.setHeaderText("Выберите проект:");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(selected -> {
-            String projectId = selected.split(" \\(")[0];
-            Project loaded = dbManager.loadProject(projectId);
-            if (loaded != null) {
-                project = loaded;
-                if (currentRenderer != null) {
-                    currentRenderer.render(project, renderPane);
-                }
-                showAlert("Загрузка", "Проект загружен!");
-            }
-        });
     }
 
     private void showAlert(String title, String message) {
@@ -341,9 +470,7 @@ public class TestRenderer extends Application {
     public void stop() {
         if (uiUpdater != null) uiUpdater.stop();
         stopSimulation();
-        if (currentRenderer != null) {
-            currentRenderer.clear();
-        }
+        if (lwjglRenderer != null) lwjglRenderer.stopGL();
         if (dbManager != null) dbManager.close();
     }
 
