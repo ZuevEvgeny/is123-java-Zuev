@@ -10,7 +10,6 @@ public class CollisionChecker {
     private static final float WALL_THICKNESS = 0.2f;
     private static final float COLLISION_MARGIN = 0.05f;
 
-    // Проверка пересечения со стенами
     public static boolean checkWallCollision(float x, float z, float width, float depth,
                                              float rotation, List<WallSegment> walls) {
         float[][] corners = getRotatedCorners(x, z, width / 2, depth / 2, rotation);
@@ -31,7 +30,6 @@ public class CollisionChecker {
         return false;
     }
 
-    // Проверка пересечения с другой мебелью
     public static boolean checkFurnitureCollision(float x, float z, float width, float depth,
                                                   float rotation, List<FurnitureItem> furniture,
                                                   FurnitureItem excludeItem) {
@@ -59,7 +57,6 @@ public class CollisionChecker {
         return false;
     }
 
-    // Получение 4 углов повернутого прямоугольника
     private static float[][] getRotatedCorners(float cx, float cz, float halfW, float halfD, float rotation) {
         float cos = (float) Math.cos(rotation);
         float sin = (float) Math.sin(rotation);
@@ -78,9 +75,7 @@ public class CollisionChecker {
         return corners;
     }
 
-    // Проверка пересечения двух прямоугольников (SAT)
     private static boolean rectanglesOverlap(float[][] rect1, float[][] rect2) {
-        // Проверка по осям X и Y (упрощенная AABB)
         float min1X = Float.MAX_VALUE, max1X = -Float.MAX_VALUE;
         float min1Z = Float.MAX_VALUE, max1Z = -Float.MAX_VALUE;
         float min2X = Float.MAX_VALUE, max2X = -Float.MAX_VALUE;
@@ -126,7 +121,6 @@ public class CollisionChecker {
         return Math.hypot(px - xx, py - yy);
     }
 
-    // Автоповорот вдоль стены
     public static float snapToWallRotation(float x, float z, List<WallSegment> walls) {
         WallSegment nearest = null;
         double minDist = Double.MAX_VALUE;
@@ -151,7 +145,6 @@ public class CollisionChecker {
         return 0;
     }
 
-    // Получить ограничивающий прямоугольник предмета
     public static float[] getBoundingBox(FurnitureItem item) {
         ItemLibrary lib = ItemLibrary.getInstance();
         LibraryItem libItem = lib.getItem(item.getLibraryId());

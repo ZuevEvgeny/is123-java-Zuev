@@ -22,7 +22,6 @@ public class CameraState {
         this.orbitMode = true;
     }
 
-    // Геттеры и сеттеры
     public float getPosX() { return posX; }
     public void setPosX(float posX) { this.posX = posX; }
 

@@ -84,15 +84,15 @@ public class TextureManager {
             return textureCache.get("brick");
         }
 
-        int width = 256;
-        int height = 256;
+        int width = 512;
+        int height = 512;
         ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int brickH = 32;
-                int brickW = 64;
-                int mortar = 4;
+                int brickH = 64;
+                int brickW = 128;
+                int mortar = 6;
 
                 int brickRow = y / brickH;
                 int brickCol = x / brickW;
@@ -109,13 +109,31 @@ public class TextureManager {
 
                 byte r, g, b;
                 if (isMortar) {
-                    r = (byte)200; g = (byte)190; b = (byte)170;
+                    int mortarVar = (int)(Math.sin(x * 0.1) * 10);
+                    r = (byte)(210 + mortarVar);
+                    g = (byte)(200 + mortarVar/2);
+                    b = (byte)(180 + mortarVar/3);
                 } else {
-                    int variation = (brickRow * 13 + brickCol * 7) % 30 - 15;
-                    r = (byte)(180 + variation);
-                    g = (byte)(100 + variation/2);
-                    b = (byte)(70 + variation/3);
+                    int variation = (brickRow * 13 + brickCol * 7) % 40 - 20;
+                    int brickType = (brickRow + brickCol) % 3;
+                    if (brickType == 0) {
+                        r = (byte)(170 + variation);
+                        g = (byte)(100 + variation/2);
+                        b = (byte)(70 + variation/3);
+                    } else if (brickType == 1) {
+                        r = (byte)(190 + variation);
+                        g = (byte)(110 + variation/2);
+                        b = (byte)(80 + variation/3);
+                    } else {
+                        r = (byte)(150 + variation);
+                        g = (byte)(90 + variation/2);
+                        b = (byte)(60 + variation/3);
+                    }
                 }
+
+                r = (byte)Math.min(255, Math.max(0, r));
+                g = (byte)Math.min(255, Math.max(0, g));
+                b = (byte)Math.min(255, Math.max(0, b));
 
                 buffer.put(r);
                 buffer.put(g);
@@ -143,30 +161,34 @@ public class TextureManager {
             return textureCache.get("wood");
         }
 
-        int width = 256;
-        int height = 256;
+        int width = 512;
+        int height = 512;
         ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int stripeWidth = 16;
-                int stripe = x / stripeWidth;
-                int localX = x % stripeWidth;
+                int plankWidth = 80;
+                int plank = x / plankWidth;
+                int localX = x % plankWidth;
 
-                boolean darkStripe = (stripe % 2 == 0);
+                int variation = (plank * 37) % 30 - 15;
 
-                int noise = (int)(Math.sin(x * 0.05) * Math.cos(y * 0.05) * 20);
+                int grain = (int)(Math.sin(x * 0.03) * Math.cos(y * 0.02) * 25);
 
                 byte r, g, b;
-                if (darkStripe) {
-                    r = (byte)(120 + noise);
-                    g = (byte)(80 + noise/2);
-                    b = (byte)(50 + noise/3);
+                if (localX < 3 || localX > plankWidth - 3) {
+                    r = (byte)(80 + variation/3);
+                    g = (byte)(50 + variation/4);
+                    b = (byte)(30 + variation/5);
                 } else {
-                    r = (byte)(180 + noise);
-                    g = (byte)(140 + noise/2);
-                    b = (byte)(100 + noise/3);
+                    r = (byte)(160 + variation + grain);
+                    g = (byte)(110 + variation/2 + grain/2);
+                    b = (byte)(70 + variation/3 + grain/3);
                 }
+
+                r = (byte)Math.min(255, Math.max(0, r));
+                g = (byte)Math.min(255, Math.max(0, g));
+                b = (byte)Math.min(255, Math.max(0, b));
 
                 buffer.put(r);
                 buffer.put(g);
@@ -194,15 +216,15 @@ public class TextureManager {
             return textureCache.get("door");
         }
 
-        int width = 128;
-        int height = 256;
+        int width = 256;
+        int height = 512;
         ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int panelHeight = 80;
-                int panelWidth = 60;
-                int margin = 15;
+                int panelHeight = 140;
+                int panelWidth = 100;
+                int margin = 20;
 
                 boolean isPanel = (x > margin && x < width - margin &&
                         y > margin && y < height - margin &&
@@ -210,16 +232,16 @@ public class TextureManager {
 
                 byte r, g, b;
                 if (isPanel) {
-                    r = (byte)180;
-                    g = (byte)140;
-                    b = (byte)100;
+                    r = (byte)200;
+                    g = (byte)160;
+                    b = (byte)120;
                 } else {
-                    r = (byte)120;
-                    g = (byte)80;
-                    b = (byte)50;
+                    r = (byte)130;
+                    g = (byte)90;
+                    b = (byte)60;
                 }
 
-                int grain = (int)(Math.sin(x * 0.1) * 10 + Math.cos(y * 0.15) * 10);
+                int grain = (int)(Math.sin(x * 0.08) * 15 + Math.cos(y * 0.1) * 15);
                 r = (byte)Math.min(255, Math.max(0, r + grain));
                 g = (byte)Math.min(255, Math.max(0, g + grain/2));
                 b = (byte)Math.min(255, Math.max(0, b + grain/3));

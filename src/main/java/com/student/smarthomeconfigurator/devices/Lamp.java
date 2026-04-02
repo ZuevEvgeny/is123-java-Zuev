@@ -68,7 +68,7 @@ public class Lamp extends Device {
 
     public float[] getLightColor() {
         if (!status) return new float[]{0, 0, 0};
-        // Усиливаем цвет для большей видимости
+
         return new float[]{
                 lightColor[0] * 1.5f,
                 lightColor[1] * 1.5f,

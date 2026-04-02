@@ -1,738 +1,606 @@
 package com.student.smarthomeconfigurator.generator;
 
 import org.joml.Matrix4f;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ProceduralModelGenerator {
 
     public static class ModelData {
-        public List<float[]> verticesList;
-        public List<float[]> normalsList;
-        public List<float[]> texCoordsList;
-        public List<int[]> indicesList;
-        public List<Matrix4f> transforms;
-        public List<float[]> colors;
-
-        public ModelData() {
-            verticesList = new ArrayList<>();
-            normalsList = new ArrayList<>();
-            texCoordsList = new ArrayList<>();
-            indicesList = new ArrayList<>();
-            transforms = new ArrayList<>();
-            colors = new ArrayList<>();
-        }
-
-        public void addMesh(float[] vertices, float[] normals, float[] texCoords, int[] indices,
-                            Matrix4f transform, float r, float g, float b) {
-            verticesList.add(vertices);
-            normalsList.add(normals);
-            texCoordsList.add(texCoords);
-            indicesList.add(indices);
-            transforms.add(transform);
-            colors.add(new float[]{r, g, b});
-        }
-    }
-
-    // ==================== МЕБЕЛЬ ====================
-
-    public static ModelData createCornerSofa(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] norms = createBoxNormals();
-        float[] tex = createBoxTexCoords();
-        int[] indices = createBoxIndices();
-
-        // Основная часть (длинная)
-        float[] mainVerts = createBox(0.8f, 0.4f, 0.6f);
-        Matrix4f mainTransform = new Matrix4f(baseTransform).translate(0, 0.2f, 0, new Matrix4f());
-        model.addMesh(mainVerts, norms, tex, indices, mainTransform, 0.5f, 0.3f, 0.2f);
-
-        // Угловая часть
-        Matrix4f cornerTransform = new Matrix4f(baseTransform).translate(0.6f, 0.2f, 0.4f, new Matrix4f());
-        model.addMesh(mainVerts, norms, tex, indices, cornerTransform, 0.5f, 0.3f, 0.2f);
-
-        // Спинка основной части
-        float[] backVerts = createBox(0.8f, 0.3f, 0.1f);
-        Matrix4f backMainTransform = new Matrix4f(baseTransform).translate(0, 0.35f, -0.3f, new Matrix4f());
-        model.addMesh(backVerts, norms, tex, indices, backMainTransform, 0.6f, 0.4f, 0.3f);
-
-        // Спинка угловой части
-        Matrix4f backCornerTransform = new Matrix4f(baseTransform).translate(0.6f, 0.35f, 0.1f, new Matrix4f());
-        model.addMesh(backVerts, norms, tex, indices, backCornerTransform, 0.6f, 0.4f, 0.3f);
-
-        // Подушки
-        float[] pillowVerts = createBox(0.25f, 0.1f, 0.45f);
-        Matrix4f pillow1Transform = new Matrix4f(baseTransform).translate(-0.25f, 0.45f, 0, new Matrix4f());
-        Matrix4f pillow2Transform = new Matrix4f(baseTransform).translate(0, 0.45f, 0, new Matrix4f());
-        Matrix4f pillow3Transform = new Matrix4f(baseTransform).translate(0.25f, 0.45f, 0, new Matrix4f());
-        model.addMesh(pillowVerts, norms, tex, indices, pillow1Transform, 0.7f, 0.5f, 0.3f);
-        model.addMesh(pillowVerts, norms, tex, indices, pillow2Transform, 0.7f, 0.5f, 0.3f);
-        model.addMesh(pillowVerts, norms, tex, indices, pillow3Transform, 0.7f, 0.5f, 0.3f);
-
-        return model;
-    }
-
-    public static ModelData createDoubleBed(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] norms = createBoxNormals();
-        float[] tex = createBoxTexCoords();
-        int[] indices = createBoxIndices();
-
-        // Основание
-        float[] baseVerts = createBox(0.9f, 0.2f, 1.6f);
-        Matrix4f baseTransformMat = new Matrix4f(baseTransform).translate(0, 0.1f, 0, new Matrix4f());
-        model.addMesh(baseVerts, norms, tex, indices, baseTransformMat, 0.5f, 0.3f, 0.2f);
-
-        // Матрас
-        float[] mattressVerts = createBox(0.85f, 0.15f, 1.55f);
-        Matrix4f mattressTransform = new Matrix4f(baseTransform).translate(0, 0.25f, 0, new Matrix4f());
-        model.addMesh(mattressVerts, norms, tex, indices, mattressTransform, 0.7f, 0.5f, 0.3f);
-
-        // Подушки
-        float[] pillowVerts = createBox(0.4f, 0.1f, 0.6f);
-        Matrix4f pillow1Transform = new Matrix4f(baseTransform).translate(-0.25f, 0.4f, 0.5f, new Matrix4f());
-        Matrix4f pillow2Transform = new Matrix4f(baseTransform).translate(0.25f, 0.4f, 0.5f, new Matrix4f());
-        model.addMesh(pillowVerts, norms, tex, indices, pillow1Transform, 0.8f, 0.7f, 0.5f);
-        model.addMesh(pillowVerts, norms, tex, indices, pillow2Transform, 0.8f, 0.7f, 0.5f);
-
-        // Изголовье
-        float[] headboardVerts = createBox(0.95f, 0.3f, 0.1f);
-        Matrix4f headboardTransform = new Matrix4f(baseTransform).translate(0, 0.35f, -0.85f, new Matrix4f());
-        model.addMesh(headboardVerts, norms, tex, indices, headboardTransform, 0.6f, 0.4f, 0.3f);
-
-        return model;
-    }
-
-    public static ModelData createWardrobe(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] norms = createBoxNormals();
-        float[] tex = createBoxTexCoords();
-        int[] indices = createBoxIndices();
-
-        // Корпус
-        float[] bodyVerts = createBox(0.8f, 1.8f, 0.6f);
-        Matrix4f bodyTransform = new Matrix4f(baseTransform).translate(0, 0.9f, 0, new Matrix4f());
-        model.addMesh(bodyVerts, norms, tex, indices, bodyTransform, 0.7f, 0.5f, 0.3f);
-
-        // Дверцы
-        float[] doorVerts = createBox(0.38f, 1.6f, 0.05f);
-        Matrix4f doorLeftTransform = new Matrix4f(baseTransform).translate(-0.4f, 0.9f, 0.31f, new Matrix4f());
-        Matrix4f doorRightTransform = new Matrix4f(baseTransform).translate(0.4f, 0.9f, 0.31f, new Matrix4f());
-        model.addMesh(doorVerts, norms, tex, indices, doorLeftTransform, 0.8f, 0.6f, 0.4f);
-        model.addMesh(doorVerts, norms, tex, indices, doorRightTransform, 0.8f, 0.6f, 0.4f);
-
-        // Ручки
-        float[] handleVerts = createCylinder(0.03f, 0.1f, 8);
-        float[] cylNorms = createCylinderNormals(handleVerts);
-        float[] cylTex = createCylinderTexCoords(handleVerts);
-        int[] cylIndices = createCylinderIndices(8);
-        Matrix4f handleLeftTransform = new Matrix4f(baseTransform).translate(-0.4f, 0.9f, 0.34f, new Matrix4f());
-        Matrix4f handleRightTransform = new Matrix4f(baseTransform).translate(0.4f, 0.9f, 0.34f, new Matrix4f());
-        model.addMesh(handleVerts, cylNorms, cylTex, cylIndices, handleLeftTransform, 0.9f, 0.8f, 0.6f);
-        model.addMesh(handleVerts, cylNorms, cylTex, cylIndices, handleRightTransform, 0.9f, 0.8f, 0.6f);
-
-        return model;
-    }
-
-    public static ModelData createShelf(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] norms = createBoxNormals();
-        float[] tex = createBoxTexCoords();
-        int[] indices = createBoxIndices();
-
-        // Вертикальные стойки
-        float[] poleVerts = createBox(0.08f, 1.2f, 0.08f);
-        Matrix4f pole1Transform = new Matrix4f(baseTransform).translate(-0.4f, 0.6f, -0.3f, new Matrix4f());
-        Matrix4f pole2Transform = new Matrix4f(baseTransform).translate(0.4f, 0.6f, -0.3f, new Matrix4f());
-        Matrix4f pole3Transform = new Matrix4f(baseTransform).translate(-0.4f, 0.6f, 0.3f, new Matrix4f());
-        Matrix4f pole4Transform = new Matrix4f(baseTransform).translate(0.4f, 0.6f, 0.3f, new Matrix4f());
-        model.addMesh(poleVerts, norms, tex, indices, pole1Transform, 0.6f, 0.4f, 0.3f);
-        model.addMesh(poleVerts, norms, tex, indices, pole2Transform, 0.6f, 0.4f, 0.3f);
-        model.addMesh(poleVerts, norms, tex, indices, pole3Transform, 0.6f, 0.4f, 0.3f);
-        model.addMesh(poleVerts, norms, tex, indices, pole4Transform, 0.6f, 0.4f, 0.3f);
-
-        // Полки
-        float[] shelfVerts = createBox(0.9f, 0.05f, 0.7f);
-        Matrix4f shelf1Transform = new Matrix4f(baseTransform).translate(0, 0.2f, 0, new Matrix4f());
-        Matrix4f shelf2Transform = new Matrix4f(baseTransform).translate(0, 0.6f, 0, new Matrix4f());
-        Matrix4f shelf3Transform = new Matrix4f(baseTransform).translate(0, 1.0f, 0, new Matrix4f());
-        model.addMesh(shelfVerts, norms, tex, indices, shelf1Transform, 0.7f, 0.5f, 0.3f);
-        model.addMesh(shelfVerts, norms, tex, indices, shelf2Transform, 0.7f, 0.5f, 0.3f);
-        model.addMesh(shelfVerts, norms, tex, indices, shelf3Transform, 0.7f, 0.5f, 0.3f);
-
-        return model;
-    }
-
-    public static ModelData createChair(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] norms = createBoxNormals();
-        float[] tex = createBoxTexCoords();
-        int[] indices = createBoxIndices();
-
-        // Сиденье
-        float[] seatVerts = createBox(0.4f, 0.05f, 0.4f);
-        Matrix4f seatTransform = new Matrix4f(baseTransform).translate(0, 0.2f, 0, new Matrix4f());
-        model.addMesh(seatVerts, norms, tex, indices, seatTransform, 0.6f, 0.4f, 0.3f);
-
-        // Спинка
-        float[] backVerts = createBox(0.4f, 0.4f, 0.05f);
-        Matrix4f backTransform = new Matrix4f(baseTransform).translate(0, 0.4f, -0.2f, new Matrix4f());
-        model.addMesh(backVerts, norms, tex, indices, backTransform, 0.6f, 0.4f, 0.3f);
-
-        // Ножки
-        float[] legVerts = createCylinder(0.05f, 0.2f, 8);
-        float[] cylNorms = createCylinderNormals(legVerts);
-        float[] cylTex = createCylinderTexCoords(legVerts);
-        int[] cylIndices = createCylinderIndices(8);
-
-        Matrix4f leg1Transform = new Matrix4f(baseTransform).translate(-0.3f, 0.05f, -0.3f, new Matrix4f());
-        Matrix4f leg2Transform = new Matrix4f(baseTransform).translate(0.3f, 0.05f, -0.3f, new Matrix4f());
-        Matrix4f leg3Transform = new Matrix4f(baseTransform).translate(-0.3f, 0.05f, 0.3f, new Matrix4f());
-        Matrix4f leg4Transform = new Matrix4f(baseTransform).translate(0.3f, 0.05f, 0.3f, new Matrix4f());
-
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg1Transform, 0.4f, 0.3f, 0.2f);
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg2Transform, 0.4f, 0.3f, 0.2f);
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg3Transform, 0.4f, 0.3f, 0.2f);
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg4Transform, 0.4f, 0.3f, 0.2f);
-
-        return model;
+        public List<float[]> verticesList = new ArrayList<>();
+        public List<float[]> normalsList = new ArrayList<>();
+        public List<float[]> texCoordsList = new ArrayList<>();
+        public List<int[]> indicesList = new ArrayList<>();
+        public List<float[]> colors = new ArrayList<>();
+        public List<Matrix4f> transforms = new ArrayList<>();
     }
 
     public static ModelData createTable(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] norms = createBoxNormals();
-        float[] tex = createBoxTexCoords();
-        int[] indices = createBoxIndices();
+        ModelData data = new ModelData();
 
-        // Столешница
-        float[] topVerts = createBox(0.8f, 0.08f, 0.8f);
-        Matrix4f topTransform = new Matrix4f(baseTransform).translate(0, 0.4f, 0, new Matrix4f());
-        model.addMesh(topVerts, norms, tex, indices, topTransform, 0.7f, 0.5f, 0.3f);
+        float tableHeight = 0.7f * scale;
+        float topHeight = 0.05f * scale;
+        float legHeight = tableHeight;
 
-        // Ножки
-        float[] legVerts = createCylinder(0.08f, 0.4f, 8);
-        float[] cylNorms = createCylinderNormals(legVerts);
-        float[] cylTex = createCylinderTexCoords(legVerts);
-        int[] cylIndices = createCylinderIndices(8);
+        addBox(data, 0, tableHeight - topHeight/2, 0, 1.2f * scale, topHeight, 0.8f * scale,
+                new float[]{0.65f, 0.45f, 0.25f, 1.0f}, 0);
 
-        Matrix4f leg1Transform = new Matrix4f(baseTransform).translate(-0.35f, 0.2f, -0.35f, new Matrix4f());
-        Matrix4f leg2Transform = new Matrix4f(baseTransform).translate(0.35f, 0.2f, -0.35f, new Matrix4f());
-        Matrix4f leg3Transform = new Matrix4f(baseTransform).translate(-0.35f, 0.2f, 0.35f, new Matrix4f());
-        Matrix4f leg4Transform = new Matrix4f(baseTransform).translate(0.35f, 0.2f, 0.35f, new Matrix4f());
+        float legSize = 0.08f * scale;
+        float legPosY = legHeight/2;
 
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg1Transform, 0.5f, 0.3f, 0.2f);
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg2Transform, 0.5f, 0.3f, 0.2f);
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg3Transform, 0.5f, 0.3f, 0.2f);
-        model.addMesh(legVerts, cylNorms, cylTex, cylIndices, leg4Transform, 0.5f, 0.3f, 0.2f);
+        addBox(data, -0.55f * scale, legPosY, -0.35f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+        addBox(data, 0.55f * scale, legPosY, -0.35f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+        addBox(data, -0.55f * scale, legPosY, 0.35f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+        addBox(data, 0.55f * scale, legPosY, 0.35f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
 
-        return model;
+        return data;
     }
 
-    // ==================== ЛАМПЫ ====================
+    public static ModelData createChair(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
 
-    public static ModelData createChandelier(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+        float seatHeight = 0.45f * scale;
+        float seatThick = 0.08f * scale;
 
-        // Центральная часть
-        float[] centerVerts = createSphere(0.15f, 16, 16);
-        float[] sphereNorms = createSphereNormals(centerVerts);
-        float[] sphereTex = createSphereTexCoords(centerVerts);
-        int[] sphereIndices = createSphereIndices(16, 16);
-        Matrix4f centerTransform = new Matrix4f(baseTransform);
-        model.addMesh(centerVerts, sphereNorms, sphereTex, sphereIndices, centerTransform, 0.9f, 0.8f, 0.6f);
+        addBox(data, 0, seatHeight, 0, 0.45f * scale, seatThick, 0.45f * scale,
+                new float[]{0.6f, 0.4f, 0.2f, 1.0f}, 0);
 
-        // Лампочки по кругу
-        float[] bulbVerts = createSphere(0.1f, 12, 12);
-        for (int i = 0; i < 4; i++) {
-            float angle = (float)(Math.PI * 2 * i / 4);
-            float dx = (float)Math.cos(angle) * 0.4f;
-            float dz = (float)Math.sin(angle) * 0.4f;
-            Matrix4f bulbTransform = new Matrix4f(baseTransform).translate(dx, 0.1f, dz, new Matrix4f());
-            model.addMesh(bulbVerts, sphereNorms, sphereTex, sphereIndices, bulbTransform, 1.0f, 0.9f, 0.7f);
+        addBox(data, 0, seatHeight + 0.2f * scale, -0.22f * scale,
+                0.45f * scale, 0.4f * scale, 0.05f * scale,
+                new float[]{0.6f, 0.4f, 0.2f, 1.0f}, 0);
+
+        float legHeight = seatHeight - seatThick/2;
+        float legPosY = legHeight/2;
+        float legSize = 0.06f * scale;
+
+        addBox(data, -0.18f * scale, legPosY, -0.18f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+        addBox(data, 0.18f * scale, legPosY, -0.18f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+        addBox(data, -0.18f * scale, legPosY, 0.18f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+        addBox(data, 0.18f * scale, legPosY, 0.18f * scale,
+                legSize, legHeight, legSize,
+                new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createDoubleBed(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float bedHeight = 0.3f * scale;
+
+        addBox(data, 0, bedHeight/2, 0, 1.6f * scale, bedHeight, 2.0f * scale,
+                new float[]{0.5f, 0.35f, 0.25f, 1.0f}, 0);
+
+        addBox(data, 0, bedHeight + 0.05f * scale, 0, 1.55f * scale, 0.2f * scale, 1.95f * scale,
+                new float[]{0.9f, 0.85f, 0.8f, 1.0f}, 0);
+
+        addBox(data, 0, bedHeight + 0.15f * scale, -0.95f * scale,
+                1.6f * scale, 0.5f * scale, 0.1f * scale,
+                new float[]{0.5f, 0.35f, 0.25f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createWardrobe(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float cabinetHeight = 2.0f * scale;
+
+        addBox(data, 0, cabinetHeight/2, 0, 0.9f * scale, cabinetHeight, 0.6f * scale,
+                new float[]{0.55f, 0.4f, 0.25f, 1.0f}, 0);
+
+        float doorZ = 0.31f * scale;
+        addBox(data, -0.2f * scale, cabinetHeight/2, doorZ,
+                0.4f * scale, cabinetHeight - 0.1f * scale, 0.03f * scale,
+                new float[]{0.7f, 0.5f, 0.35f, 1.0f}, 0);
+        addBox(data, 0.2f * scale, cabinetHeight/2, doorZ,
+                0.4f * scale, cabinetHeight - 0.1f * scale, 0.03f * scale,
+                new float[]{0.7f, 0.5f, 0.35f, 1.0f}, 0);
+
+        addBox(data, -0.32f * scale, cabinetHeight/2, doorZ + 0.02f * scale,
+                0.03f * scale, 0.08f * scale, 0.01f * scale,
+                new float[]{0.9f, 0.8f, 0.7f, 1.0f}, 0);
+        addBox(data, 0.08f * scale, cabinetHeight/2, doorZ + 0.02f * scale,
+                0.03f * scale, 0.08f * scale, 0.01f * scale,
+                new float[]{0.9f, 0.8f, 0.7f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createShelf(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float shelfHeight = 1.6f * scale;
+
+        addBox(data, 0, shelfHeight/2, 0, 0.8f * scale, shelfHeight, 0.4f * scale,
+                new float[]{0.6f, 0.45f, 0.3f, 1.0f}, 0);
+
+        float[] shelfPositions = {0.5f, 0.9f, 1.3f};
+        for (float pos : shelfPositions) {
+            addBox(data, 0, pos * scale, 0, 0.75f * scale, 0.03f * scale, 0.35f * scale,
+                    new float[]{0.65f, 0.5f, 0.35f, 1.0f}, 0);
         }
 
-        // Подвес
-        float[] chainVerts = createCylinder(0.05f, 0.2f, 8);
-        float[] cylNorms = createCylinderNormals(chainVerts);
-        float[] cylTex = createCylinderTexCoords(chainVerts);
-        int[] cylIndices = createCylinderIndices(8);
-        Matrix4f chainTransform = new Matrix4f(baseTransform).translate(0, 0.2f, 0, new Matrix4f());
-        model.addMesh(chainVerts, cylNorms, cylTex, cylIndices, chainTransform, 0.7f, 0.6f, 0.5f);
-
-        return model;
+        return data;
     }
 
-    public static ModelData createPendantLamp(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+    public static ModelData createCornerSofa(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
 
-        // Плафон
-        float[] shadeVerts = createCylinder(0.25f, 0.3f, 24);
-        float[] cylNorms = createCylinderNormals(shadeVerts);
-        float[] cylTex = createCylinderTexCoords(shadeVerts);
-        int[] cylIndices = createCylinderIndices(24);
-        Matrix4f shadeTransform = new Matrix4f(baseTransform);
-        model.addMesh(shadeVerts, cylNorms, cylTex, cylIndices, shadeTransform, 0.8f, 0.7f, 0.5f);
+        float sofaHeight = 0.45f * scale;
+        float cushionHeight = 0.12f * scale;
 
-        // Лампочка внутри
-        float[] bulbVerts = createSphere(0.12f, 12, 12);
-        float[] sphereNorms = createSphereNormals(bulbVerts);
-        float[] sphereTex = createSphereTexCoords(bulbVerts);
-        int[] sphereIndices = createSphereIndices(12, 12);
-        Matrix4f bulbTransform = new Matrix4f(baseTransform).translate(0, 0.05f, 0, new Matrix4f());
-        model.addMesh(bulbVerts, sphereNorms, sphereTex, sphereIndices, bulbTransform, 1.0f, 0.9f, 0.7f);
+        addBox(data, -0.45f * scale, sofaHeight/2 - 0.03f * scale, 0, 1.8f * scale, sofaHeight - 0.05f * scale, 0.8f * scale,
+                new float[]{0.55f, 0.45f, 0.35f, 1.0f}, 0);
 
-        // Подвес
-        float[] cordVerts = createCylinder(0.04f, 0.2f, 6);
-        float[] cordNorms = createCylinderNormals(cordVerts);
-        float[] cordTex = createCylinderTexCoords(cordVerts);
-        int[] cordIndices = createCylinderIndices(6);
-        Matrix4f cordTransform = new Matrix4f(baseTransform).translate(0, 0.2f, 0, new Matrix4f());
-        model.addMesh(cordVerts, cordNorms, cordTex, cordIndices, cordTransform, 0.6f, 0.5f, 0.4f);
+        addBox(data, 0.35f * scale, sofaHeight/2 - 0.03f * scale, 0.4f * scale,
+                0.8f * scale, sofaHeight - 0.05f * scale, 1.0f * scale,
+                new float[]{0.55f, 0.45f, 0.35f, 1.0f}, 0);
 
-        return model;
+        addBox(data, -0.45f * scale, sofaHeight/2 + 0.02f * scale, 0, 1.8f * scale, cushionHeight, 0.75f * scale,
+                new float[]{0.85f, 0.75f, 0.65f, 1.0f}, 0);
+        addBox(data, 0.35f * scale, sofaHeight/2 + 0.02f * scale, 0.4f * scale,
+                0.8f * scale, cushionHeight, 0.95f * scale,
+                new float[]{0.85f, 0.75f, 0.65f, 1.0f}, 0);
+
+        addBox(data, -0.45f * scale, sofaHeight/2 + 0.1f * scale, -0.38f * scale,
+                1.8f * scale, 0.4f * scale, 0.1f * scale,
+                new float[]{0.75f, 0.65f, 0.55f, 1.0f}, 0);
+        addBox(data, 0.35f * scale, sofaHeight/2 + 0.1f * scale, 1.25f * scale,
+                0.8f * scale, 0.4f * scale, 0.1f * scale,
+                new float[]{0.75f, 0.65f, 0.55f, 1.0f}, 0);
+
+        addBox(data, -1.3f * scale, sofaHeight/2, 0, 0.12f * scale, sofaHeight, 0.8f * scale,
+                new float[]{0.6f, 0.5f, 0.4f, 1.0f}, 0);
+        addBox(data, 0.85f * scale, sofaHeight/2, 0, 0.12f * scale, sofaHeight, 0.8f * scale,
+                new float[]{0.6f, 0.5f, 0.4f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createCoffeeTable(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float tableHeight = 0.45f * scale;
+        float tableWidth = 0.8f * scale;
+        float tableDepth = 0.5f * scale;
+
+        addBox(data, 0, tableHeight, 0, tableWidth, 0.05f * scale, tableDepth,
+                new float[]{0.55f, 0.4f, 0.25f, 1.0f}, 0);
+
+        float legSize = 0.05f * scale;
+        float legPosY = tableHeight/2;
+
+        float[] offsets = {-0.35f, 0.35f};
+        for (float ox : offsets) {
+            for (float oz : offsets) {
+                addBox(data, ox * scale, legPosY, oz * (tableDepth/2 - 0.1f) * scale,
+                        legSize, tableHeight, legSize,
+                        new float[]{0.5f, 0.35f, 0.2f, 1.0f}, 0);
+            }
+        }
+
+        return data;
+    }
+
+    public static ModelData createNightstand(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float height = 0.5f * scale;
+        float width = 0.45f * scale;
+        float depth = 0.4f * scale;
+
+        addBox(data, 0, height/2, 0, width, height, depth,
+                new float[]{0.6f, 0.45f, 0.3f, 1.0f}, 0);
+
+        addBox(data, 0, height/3, 0.21f * scale, width - 0.05f * scale, height/2.5f, 0.02f * scale,
+                new float[]{0.7f, 0.55f, 0.4f, 1.0f}, 0);
+
+        addBox(data, -0.1f * scale, height/3, 0.22f * scale,
+                0.05f * scale, 0.03f * scale, 0.02f * scale,
+                new float[]{0.9f, 0.7f, 0.3f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createTV(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float tvHeight = 0.6f * scale;
+        float tvWidth = 1.0f * scale;
+        float tvDepth = 0.05f * scale;
+
+        addBox(data, 0, tvHeight/2, 0, tvWidth, tvHeight, tvDepth,
+                new float[]{0.1f, 0.1f, 0.1f, 1.0f}, 0);
+
+        addBox(data, 0, tvHeight/2, 0.01f * scale, tvWidth + 0.03f * scale, tvHeight + 0.03f * scale, 0.01f * scale,
+                new float[]{0.3f, 0.3f, 0.3f, 1.0f}, 0);
+
+        addBox(data, 0, -0.05f * scale, 0, 0.4f * scale, 0.05f * scale, 0.2f * scale,
+                new float[]{0.4f, 0.4f, 0.4f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createStove(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float stoveHeight = 0.85f * scale;
+        float stoveWidth = 0.6f * scale;
+        float stoveDepth = 0.6f * scale;
+
+        addBox(data, 0, stoveHeight/2, 0, stoveWidth, stoveHeight, stoveDepth,
+                new float[]{0.3f, 0.3f, 0.3f, 1.0f}, 0);
+
+        addBox(data, 0, stoveHeight - 0.05f * scale, 0, stoveWidth - 0.05f * scale, 0.03f * scale, stoveDepth - 0.05f * scale,
+                new float[]{0.1f, 0.1f, 0.1f, 1.0f}, 0);
+
+        float[] offsets = {-0.18f, 0.18f};
+        for (float ox : offsets) {
+            for (float oz : offsets) {
+                addBox(data, ox * scale, stoveHeight - 0.02f * scale, oz * scale,
+                        0.12f * scale, 0.02f * scale, 0.12f * scale,
+                        new float[]{0.8f, 0.6f, 0.2f, 1.0f}, 0);
+            }
+        }
+
+        addBox(data, 0, stoveHeight/2 - 0.1f * scale, 0.31f * scale,
+                stoveWidth - 0.1f * scale, stoveHeight/2 - 0.05f * scale, 0.03f * scale,
+                new float[]{0.5f, 0.5f, 0.5f, 1.0f}, 0);
+
+        addBox(data, 0, stoveHeight/2 - 0.1f * scale, 0.33f * scale,
+                0.1f * scale, 0.02f * scale, 0.02f * scale,
+                new float[]{0.9f, 0.7f, 0.3f, 1.0f}, 0);
+
+        addBox(data, 0.25f * scale, stoveHeight - 0.08f * scale, 0.31f * scale,
+                0.12f * scale, 0.06f * scale, 0.02f * scale,
+                new float[]{0.2f, 0.2f, 0.2f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createFridge(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float fridgeHeight = 1.8f * scale;
+        float fridgeWidth = 0.7f * scale;
+        float fridgeDepth = 0.7f * scale;
+
+        addBox(data, 0, fridgeHeight/2, 0, fridgeWidth, fridgeHeight, fridgeDepth,
+                new float[]{0.95f, 0.95f, 0.95f, 1.0f}, 0);
+
+        addBox(data, 0, fridgeHeight/2, 0.36f * scale, fridgeWidth - 0.05f * scale, fridgeHeight - 0.1f * scale, 0.03f * scale,
+                new float[]{0.98f, 0.98f, 0.98f, 1.0f}, 0);
+
+        addBox(data, -0.25f * scale, fridgeHeight/2, 0.38f * scale,
+                0.05f * scale, 0.15f * scale, 0.02f * scale,
+                new float[]{0.6f, 0.6f, 0.6f, 1.0f}, 0);
+
+        addBox(data, 0, fridgeHeight - 0.35f * scale, 0.37f * scale,
+                fridgeWidth - 0.1f * scale, 0.25f * scale, 0.02f * scale,
+                new float[]{0.7f, 0.7f, 0.7f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createMicrowave(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float mwHeight = 0.35f * scale;
+        float mwWidth = 0.55f * scale;
+        float mwDepth = 0.45f * scale;
+
+        addBox(data, 0, mwHeight/2, 0, mwWidth, mwHeight, mwDepth,
+                new float[]{0.85f, 0.85f, 0.85f, 1.0f}, 0);
+
+        addBox(data, 0, mwHeight/2, 0.23f * scale, mwWidth - 0.1f * scale, mwHeight - 0.1f * scale, 0.02f * scale,
+                new float[]{0.3f, 0.3f, 0.3f, 0.7f}, 0);
+
+        addBox(data, 0, mwHeight/2, 0.24f * scale, mwWidth - 0.2f * scale, mwHeight - 0.2f * scale, 0.01f * scale,
+                new float[]{0.1f, 0.1f, 0.1f, 0.5f}, 0);
+
+        addBox(data, -0.2f * scale, mwHeight/2, 0.24f * scale,
+                0.08f * scale, 0.04f * scale, 0.02f * scale,
+                new float[]{0.9f, 0.7f, 0.2f, 1.0f}, 0);
+
+        addBox(data, 0.15f * scale, mwHeight - 0.05f * scale, 0.24f * scale,
+                0.12f * scale, 0.08f * scale, 0.02f * scale,
+                new float[]{0.2f, 0.2f, 0.2f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createDishwasher(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float dwHeight = 0.85f * scale;
+        float dwWidth = 0.6f * scale;
+        float dwDepth = 0.6f * scale;
+
+        addBox(data, 0, dwHeight/2, 0, dwWidth, dwHeight, dwDepth,
+                new float[]{0.9f, 0.9f, 0.9f, 1.0f}, 0);
+
+        addBox(data, 0, dwHeight/2, 0.31f * scale, dwWidth - 0.05f * scale, dwHeight - 0.1f * scale, 0.03f * scale,
+                new float[]{0.95f, 0.95f, 0.95f, 1.0f}, 0);
+
+        addBox(data, 0, dwHeight - 0.08f * scale, 0.32f * scale,
+                dwWidth - 0.15f * scale, 0.06f * scale, 0.02f * scale,
+                new float[]{0.3f, 0.3f, 0.3f, 1.0f}, 0);
+
+        addBox(data, -0.25f * scale, dwHeight/2, 0.33f * scale,
+                0.05f * scale, 0.1f * scale, 0.02f * scale,
+                new float[]{0.6f, 0.6f, 0.6f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createWashingMachine(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        float wmHeight = 0.85f * scale;
+        float wmWidth = 0.6f * scale;
+        float wmDepth = 0.6f * scale;
+
+        addBox(data, 0, wmHeight/2, 0, wmWidth, wmHeight, wmDepth,
+                new float[]{0.95f, 0.95f, 0.95f, 1.0f}, 0);
+
+        addBox(data, 0, wmHeight/2, 0.31f * scale, 0.35f * scale, 0.35f * scale, 0.03f * scale,
+                new float[]{0.7f, 0.8f, 0.9f, 0.8f}, 0);
+
+        addBox(data, 0.2f * scale, wmHeight - 0.1f * scale, 0.32f * scale,
+                0.2f * scale, 0.08f * scale, 0.02f * scale,
+                new float[]{0.2f, 0.2f, 0.2f, 1.0f}, 0);
+
+        return data;
+    }
+
+    public static ModelData createChandelier(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        addBox(data, 0, 0, 0, 0.12f * scale, 0.06f * scale, 0.12f * scale,
+                new float[]{0.9f, 0.85f, 0.7f, 1.0f}, 0);
+
+        addBox(data, 0, -0.12f * scale, 0, 0.06f * scale, 0.2f * scale, 0.06f * scale,
+                new float[]{0.8f, 0.7f, 0.5f, 1.0f}, 0);
+
+        addBox(data, 0, -0.28f * scale, 0, 0.18f * scale, 0.18f * scale, 0.18f * scale,
+                new float[]{1.0f, 0.85f, 0.6f, 1.0f}, 0);
+
+        addBox(data, 0, -0.45f * scale, 0, 0.35f * scale, 0.2f * scale, 0.35f * scale,
+                new float[]{0.95f, 0.85f, 0.7f, 1.0f}, 0);
+
+        for (int i = 0; i < 4; i++) {
+            float angleRad = (float) (i * Math.PI / 2);
+            float armX = (float)Math.cos(angleRad) * 0.35f * scale;
+            float armZ = (float)Math.sin(angleRad) * 0.35f * scale;
+
+            addBox(data, armX, -0.38f * scale, armZ, 0.08f * scale, 0.12f * scale, 0.08f * scale,
+                    new float[]{0.85f, 0.75f, 0.6f, 1.0f}, 0);
+
+            addBox(data, armX, -0.48f * scale, armZ, 0.12f * scale, 0.12f * scale, 0.12f * scale,
+                    new float[]{1.0f, 0.95f, 0.8f, 1.0f}, 0);
+        }
+
+        return data;
     }
 
     public static ModelData createDeskLamp(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+        ModelData data = new ModelData();
 
-        // Основание
-        float[] baseVerts = createCylinder(0.3f, 0.1f, 16);
-        float[] cylNorms = createCylinderNormals(baseVerts);
-        float[] cylTex = createCylinderTexCoords(baseVerts);
-        int[] cylIndices = createCylinderIndices(16);
-        Matrix4f baseTransformMat = new Matrix4f(baseTransform).translate(0, 0.05f, 0, new Matrix4f());
-        model.addMesh(baseVerts, cylNorms, cylTex, cylIndices, baseTransformMat, 0.5f, 0.3f, 0.2f);
+        addBox(data, 0, 0.015f * scale, 0, 0.12f * scale, 0.03f * scale, 0.12f * scale,
+                new float[]{0.3f, 0.3f, 0.3f, 1.0f}, 0);
 
-        // Стойка
-        float[] poleVerts = createCylinder(0.08f, 0.5f, 12);
-        Matrix4f poleTransform = new Matrix4f(baseTransform).translate(0, 0.3f, 0, new Matrix4f());
-        model.addMesh(poleVerts, cylNorms, cylTex, cylIndices, poleTransform, 0.6f, 0.4f, 0.3f);
+        addBox(data, 0, 0.185f * scale, 0, 0.03f * scale, 0.35f * scale, 0.03f * scale,
+                new float[]{0.5f, 0.5f, 0.5f, 1.0f}, 0);
 
-        // Абажур
-        float[] shadeVerts = createCone(0.25f, 0.2f, 16);
-        float[] coneNorms = createConeNormals(shadeVerts);
-        float[] coneTex = createConeTexCoords(shadeVerts);
-        int[] coneIndices = createConeIndices(16);
-        Matrix4f shadeTransform = new Matrix4f(baseTransform).translate(0, 0.6f, 0, new Matrix4f());
-        model.addMesh(shadeVerts, coneNorms, coneTex, coneIndices, shadeTransform, 0.9f, 0.7f, 0.5f);
+        addBox(data, 0, 0.365f * scale, 0, 0.2f * scale, 0.12f * scale, 0.2f * scale,
+                new float[]{1.0f, 0.9f, 0.7f, 1.0f}, 0);
 
-        // Лампочка
-        float[] bulbVerts = createSphere(0.12f, 12, 12);
-        float[] sphereNorms = createSphereNormals(bulbVerts);
-        float[] sphereTex = createSphereTexCoords(bulbVerts);
-        int[] sphereIndices = createSphereIndices(12, 12);
-        Matrix4f bulbTransform = new Matrix4f(baseTransform).translate(0, 0.75f, 0, new Matrix4f());
-        model.addMesh(bulbVerts, sphereNorms, sphereTex, sphereIndices, bulbTransform, 1.0f, 0.9f, 0.6f);
+        addBox(data, 0, 0.305f * scale, 0, 0.06f * scale, 0.08f * scale, 0.06f * scale,
+                new float[]{1.0f, 0.98f, 0.9f, 1.0f}, 0);
 
-        return model;
+        return data;
+    }
+
+    public static ModelData createPendantLamp(float x, float y, float z, float scale, float rotation) {
+        ModelData data = new ModelData();
+
+        addBox(data, 0, -0.2f * scale, 0, 0.02f * scale, 0.4f * scale, 0.02f * scale,
+                new float[]{0.3f, 0.3f, 0.3f, 1.0f}, 0);
+
+        addBox(data, 0, -0.5f * scale, 0, 0.25f * scale, 0.2f * scale, 0.25f * scale,
+                new float[]{1.0f, 0.9f, 0.7f, 1.0f}, 0);
+
+        addBox(data, 0, -0.65f * scale, 0, 0.08f * scale, 0.1f * scale, 0.08f * scale,
+                new float[]{1.0f, 0.98f, 0.9f, 1.0f}, 0);
+
+        return data;
     }
 
     public static ModelData createFloorLamp(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+        ModelData data = new ModelData();
 
-        // Основание
-        float[] baseVerts = createCylinder(0.35f, 0.1f, 16);
-        float[] cylNorms = createCylinderNormals(baseVerts);
-        float[] cylTex = createCylinderTexCoords(baseVerts);
-        int[] cylIndices = createCylinderIndices(16);
-        Matrix4f baseTransformMat = new Matrix4f(baseTransform).translate(0, 0.05f, 0, new Matrix4f());
-        model.addMesh(baseVerts, cylNorms, cylTex, cylIndices, baseTransformMat, 0.4f, 0.3f, 0.2f);
+        addBox(data, 0, 0.02f * scale, 0, 0.25f * scale, 0.04f * scale, 0.25f * scale,
+                new float[]{0.2f, 0.2f, 0.2f, 1.0f}, 0);
 
-        // Стойка
-        float[] poleVerts = createCylinder(0.1f, 1.2f, 12);
-        Matrix4f poleTransform = new Matrix4f(baseTransform).translate(0, 0.65f, 0, new Matrix4f());
-        model.addMesh(poleVerts, cylNorms, cylTex, cylIndices, poleTransform, 0.5f, 0.4f, 0.3f);
+        addBox(data, 0, 0.7f * scale, 0, 0.04f * scale, 1.3f * scale, 0.04f * scale,
+                new float[]{0.4f, 0.4f, 0.4f, 1.0f}, 0);
 
-        // Плафон
-        float[] shadeVerts = createCone(0.35f, 0.25f, 24);
-        float[] coneNorms = createConeNormals(shadeVerts);
-        float[] coneTex = createConeTexCoords(shadeVerts);
-        int[] coneIndices = createConeIndices(24);
-        Matrix4f shadeTransform = new Matrix4f(baseTransform).translate(0, 1.3f, 0, new Matrix4f());
-        model.addMesh(shadeVerts, coneNorms, coneTex, coneIndices, shadeTransform, 0.85f, 0.7f, 0.55f);
+        addBox(data, 0, 1.35f * scale, 0, 0.35f * scale, 0.25f * scale, 0.35f * scale,
+                new float[]{1.0f, 0.95f, 0.85f, 1.0f}, 0);
 
-        return model;
+        addBox(data, 0, 1.2f * scale, 0, 0.1f * scale, 0.12f * scale, 0.1f * scale,
+                new float[]{1.0f, 0.98f, 0.9f, 1.0f}, 0);
+
+        return data;
     }
 
     public static ModelData createSpotlight(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+        ModelData data = new ModelData();
 
-        // Корпус
-        float[] bodyVerts = createCylinder(0.12f, 0.15f, 12);
-        float[] cylNorms = createCylinderNormals(bodyVerts);
-        float[] cylTex = createCylinderTexCoords(bodyVerts);
-        int[] cylIndices = createCylinderIndices(12);
-        Matrix4f bodyTransform = new Matrix4f(baseTransform);
-        model.addMesh(bodyVerts, cylNorms, cylTex, cylIndices, bodyTransform, 0.7f, 0.6f, 0.5f);
+        addBox(data, 0, 0, 0, 0.12f * scale, 0.03f * scale, 0.12f * scale,
+                new float[]{0.8f, 0.8f, 0.8f, 1.0f}, 0);
 
-        // Линза
-        float[] lensVerts = createSphere(0.08f, 10, 10);
-        float[] sphereNorms = createSphereNormals(lensVerts);
-        float[] sphereTex = createSphereTexCoords(lensVerts);
-        int[] sphereIndices = createSphereIndices(10, 10);
-        Matrix4f lensTransform = new Matrix4f(baseTransform).translate(0, 0.1f, 0, new Matrix4f());
-        model.addMesh(lensVerts, sphereNorms, sphereTex, sphereIndices, lensTransform, 0.9f, 0.9f, 0.8f);
+        addBox(data, 0, -0.08f * scale, 0, 0.14f * scale, 0.12f * scale, 0.14f * scale,
+                new float[]{0.4f, 0.4f, 0.4f, 1.0f}, 0);
 
-        // Крепление
-        float[] mountVerts = createBox(0.08f, 0.05f, 0.08f);
-        float[] boxNorms = createBoxNormals();
-        float[] boxTex = createBoxTexCoords();
-        int[] boxIndices = createBoxIndices();
-        Matrix4f mountTransform = new Matrix4f(baseTransform).translate(0, -0.1f, 0, new Matrix4f());
-        model.addMesh(mountVerts, boxNorms, boxTex, boxIndices, mountTransform, 0.6f, 0.5f, 0.4f);
+        addBox(data, 0, -0.15f * scale, 0, 0.08f * scale, 0.08f * scale, 0.08f * scale,
+                new float[]{1.0f, 0.95f, 0.8f, 1.0f}, 0);
 
-        return model;
+        return data;
     }
 
-    // ==================== ДАТЧИКИ ====================
-
     public static ModelData createMotionSensor(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] boxNorms = createBoxNormals();
-        float[] boxTex = createBoxTexCoords();
-        int[] boxIndices = createBoxIndices();
+        ModelData data = new ModelData();
 
-        // Корпус
-        float[] bodyVerts = createBox(0.2f, 0.2f, 0.1f);
-        Matrix4f bodyTransform = new Matrix4f(baseTransform);
-        model.addMesh(bodyVerts, boxNorms, boxTex, boxIndices, bodyTransform, 0.9f, 0.9f, 0.9f);
+        addBox(data, 0, 0, 0.025f * scale, 0.1f * scale, 0.08f * scale, 0.05f * scale,
+                new float[]{0.95f, 0.95f, 0.95f, 1.0f}, 0);
 
-        // Линза (полусфера)
-        float[] lensVerts = createHemisphere(0.08f, 12, 12);
-        float[] lensNorms = createHemisphereNormals(lensVerts);
-        float[] lensTex = createHemisphereTexCoords(lensVerts);
-        int[] lensIndices = createHemisphereIndices(12, 12);
-        Matrix4f lensTransform = new Matrix4f(baseTransform).translate(0, 0, 0.06f, new Matrix4f());
-        model.addMesh(lensVerts, lensNorms, lensTex, lensIndices, lensTransform, 0.2f, 0.5f, 0.8f);
+        addBox(data, 0, 0, 0.05f * scale, 0.06f * scale, 0.04f * scale, 0.02f * scale,
+                new float[]{0.2f, 0.2f, 0.3f, 1.0f}, 0);
 
-        // LED индикатор
-        float[] ledVerts = createSphere(0.03f, 8, 8);
-        float[] sphereNorms = createSphereNormals(ledVerts);
-        float[] sphereTex = createSphereTexCoords(ledVerts);
-        int[] sphereIndices = createSphereIndices(8, 8);
-        Matrix4f ledTransform = new Matrix4f(baseTransform).translate(0.1f, 0.08f, 0.07f, new Matrix4f());
-        model.addMesh(ledVerts, sphereNorms, sphereTex, sphereIndices, ledTransform, 1.0f, 0.2f, 0.2f);
-
-        return model;
+        return data;
     }
 
     public static ModelData createTemperatureSensor(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+        ModelData data = new ModelData();
 
-        // Корпус
-        float[] bodyVerts = createCylinder(0.12f, 0.2f, 12);
-        float[] cylNorms = createCylinderNormals(bodyVerts);
-        float[] cylTex = createCylinderTexCoords(bodyVerts);
-        int[] cylIndices = createCylinderIndices(12);
-        Matrix4f bodyTransform = new Matrix4f(baseTransform);
-        model.addMesh(bodyVerts, cylNorms, cylTex, cylIndices, bodyTransform, 0.9f, 0.9f, 0.9f);
+        addBox(data, 0, 0, 0.02f * scale, 0.08f * scale, 0.08f * scale, 0.04f * scale,
+                new float[]{0.95f, 0.95f, 0.95f, 1.0f}, 0);
 
-        // Экран
-        float[] screenVerts = createBox(0.08f, 0.1f, 0.02f);
-        float[] boxNorms = createBoxNormals();
-        float[] boxTex = createBoxTexCoords();
-        int[] boxIndices = createBoxIndices();
-        Matrix4f screenTransform = new Matrix4f(baseTransform).translate(0, 0.05f, 0.07f, new Matrix4f());
-        model.addMesh(screenVerts, boxNorms, boxTex, boxIndices, screenTransform, 0.2f, 0.6f, 0.9f);
+        addBox(data, 0, 0.02f * scale, 0.04f * scale, 0.03f * scale, 0.02f * scale, 0.01f * scale,
+                new float[]{0.0f, 1.0f, 0.0f, 1.0f}, 0);
 
-        return model;
+        return data;
     }
 
     public static ModelData createSmokeSensor(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
+        ModelData data = new ModelData();
 
-        // Корпус
-        float[] bodyVerts = createCylinder(0.15f, 0.1f, 16);
-        float[] cylNorms = createCylinderNormals(bodyVerts);
-        float[] cylTex = createCylinderTexCoords(bodyVerts);
-        int[] cylIndices = createCylinderIndices(16);
-        Matrix4f bodyTransform = new Matrix4f(baseTransform);
-        model.addMesh(bodyVerts, cylNorms, cylTex, cylIndices, bodyTransform, 0.9f, 0.9f, 0.9f);
+        addBox(data, 0, 0, 0, 0.12f * scale, 0.04f * scale, 0.12f * scale,
+                new float[]{0.95f, 0.95f, 0.95f, 1.0f}, 0);
 
-        // Верхняя часть с решеткой
-        float[] topVerts = createCylinder(0.16f, 0.05f, 16);
-        Matrix4f topTransform = new Matrix4f(baseTransform).translate(0, 0.08f, 0, new Matrix4f());
-        model.addMesh(topVerts, cylNorms, cylTex, cylIndices, topTransform, 0.8f, 0.8f, 0.8f);
+        addBox(data, 0, -0.03f * scale, 0, 0.1f * scale, 0.04f * scale, 0.1f * scale,
+                new float[]{0.8f, 0.8f, 0.8f, 1.0f}, 0);
 
-        // Индикатор
-        float[] ledVerts = createSphere(0.04f, 8, 8);
-        float[] sphereNorms = createSphereNormals(ledVerts);
-        float[] sphereTex = createSphereTexCoords(ledVerts);
-        int[] sphereIndices = createSphereIndices(8, 8);
-        Matrix4f ledTransform = new Matrix4f(baseTransform).translate(0.1f, 0.05f, 0.1f, new Matrix4f());
-        model.addMesh(ledVerts, sphereNorms, sphereTex, sphereIndices, ledTransform, 1.0f, 0.0f, 0.0f);
+        addBox(data, 0, -0.05f * scale, 0, 0.04f * scale, 0.02f * scale, 0.04f * scale,
+                new float[]{1.0f, 0.0f, 0.0f, 1.0f}, 0);
 
-        return model;
+        return data;
     }
 
     public static ModelData createLightSensor(float x, float y, float z, float scale, float rotation) {
-        ModelData model = new ModelData();
-        Matrix4f baseTransform = new Matrix4f().translate(x, y, z).rotateY(rotation).scale(scale);
-        float[] boxNorms = createBoxNormals();
-        float[] boxTex = createBoxTexCoords();
-        int[] boxIndices = createBoxIndices();
+        ModelData data = new ModelData();
 
-        // Корпус
-        float[] bodyVerts = createBox(0.15f, 0.1f, 0.1f);
-        Matrix4f bodyTransform = new Matrix4f(baseTransform);
-        model.addMesh(bodyVerts, boxNorms, boxTex, boxIndices, bodyTransform, 0.9f, 0.9f, 0.9f);
+        addBox(data, 0, 0, 0.015f * scale, 0.08f * scale, 0.06f * scale, 0.03f * scale,
+                new float[]{0.9f, 0.9f, 0.9f, 1.0f}, 0);
 
-        // Сенсорная линза
-        float[] lensVerts = createHemisphere(0.06f, 8, 8);
-        float[] lensNorms = createHemisphereNormals(lensVerts);
-        float[] lensTex = createHemisphereTexCoords(lensVerts);
-        int[] lensIndices = createHemisphereIndices(8, 8);
-        Matrix4f lensTransform = new Matrix4f(baseTransform).translate(0, 0, 0.06f, new Matrix4f());
-        model.addMesh(lensVerts, lensNorms, lensTex, lensIndices, lensTransform, 0.3f, 0.6f, 0.9f);
+        addBox(data, 0, 0.01f * scale, 0.03f * scale, 0.04f * scale, 0.02f * scale, 0.01f * scale,
+                new float[]{0.3f, 0.3f, 0.5f, 1.0f}, 0);
 
-        return model;
+        return data;
     }
 
-    // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
 
-    private static float[] createCylinder(float radius, float height, int segments) {
+
+    private static void addBox(ModelData data, float x, float y, float z,
+                               float width, float height, float depth,
+                               float[] color, float rotation) {
         List<Float> verts = new ArrayList<>();
-        float halfHeight = height / 2;
-        for (int i = 0; i <= segments; i++) {
-            float angle = (float)(2 * Math.PI * i / segments);
-            float x = (float)Math.cos(angle) * radius;
-            float z = (float)Math.sin(angle) * radius;
-            verts.add(x); verts.add(-halfHeight); verts.add(z);
-            verts.add(x); verts.add(halfHeight); verts.add(z);
-        }
-        float[] result = new float[verts.size()];
-        for (int i = 0; i < verts.size(); i++) result[i] = verts.get(i);
-        return result;
-    }
+        List<Float> norms = new ArrayList<>();
+        List<Float> texs = new ArrayList<>();
+        List<Integer> idxs = new ArrayList<>();
 
-    private static float[] createCone(float radius, float height, int segments) {
-        List<Float> verts = new ArrayList<>();
-        float halfHeight = height / 2;
-        for (int i = 0; i <= segments; i++) {
-            float angle = (float)(2 * Math.PI * i / segments);
-            float x = (float)Math.cos(angle) * radius;
-            float z = (float)Math.sin(angle) * radius;
-            verts.add(x); verts.add(-halfHeight); verts.add(z);
-        }
-        verts.add(0f); verts.add(halfHeight); verts.add(0f);
-        float[] result = new float[verts.size()];
-        for (int i = 0; i < verts.size(); i++) result[i] = verts.get(i);
-        return result;
-    }
+        float halfW = width / 2.0f;
+        float halfH = height / 2.0f;
+        float halfD = depth / 2.0f;
 
-    private static float[] createSphere(float radius, int rings, int sectors) {
-        List<Float> verts = new ArrayList<>();
-        for (int i = 0; i <= rings; i++) {
-            float phi = (float)(Math.PI * i / rings);
-            float y = (float)Math.cos(phi) * radius;
-            float r = (float)Math.sin(phi) * radius;
-            for (int j = 0; j <= sectors; j++) {
-                float theta = (float)(2 * Math.PI * j / sectors);
-                float x = (float)Math.cos(theta) * r;
-                float z = (float)Math.sin(theta) * r;
-                verts.add(x); verts.add(y); verts.add(z);
-            }
-        }
-        float[] result = new float[verts.size()];
-        for (int i = 0; i < verts.size(); i++) result[i] = verts.get(i);
-        return result;
-    }
-
-    private static float[] createHemisphere(float radius, int rings, int sectors) {
-        List<Float> verts = new ArrayList<>();
-        for (int i = 0; i <= rings/2; i++) {
-            float phi = (float)(Math.PI * i / rings);
-            float y = (float)Math.cos(phi) * radius;
-            float r = (float)Math.sin(phi) * radius;
-            for (int j = 0; j <= sectors; j++) {
-                float theta = (float)(2 * Math.PI * j / sectors);
-                float x = (float)Math.cos(theta) * r;
-                float z = (float)Math.sin(theta) * r;
-                verts.add(x); verts.add(y); verts.add(z);
-            }
-        }
-        float[] result = new float[verts.size()];
-        for (int i = 0; i < verts.size(); i++) result[i] = verts.get(i);
-        return result;
-    }
-
-    private static float[] createBox(float width, float height, float depth) {
-        float hw = width / 2;
-        float hh = height / 2;
-        float hd = depth / 2;
-        return new float[] {
-                -hw, -hh, -hd,  hw, -hh, -hd,  hw,  hh, -hd, -hw,  hh, -hd,
-                -hw, -hh,  hd,  hw, -hh,  hd,  hw,  hh,  hd, -hw,  hh,  hd
+        float[][] vertices = {
+                {-halfW, -halfH, -halfD}, {halfW, -halfH, -halfD},
+                {halfW,  halfH, -halfD}, {-halfW,  halfH, -halfD},
+                {-halfW, -halfH,  halfD}, {halfW, -halfH,  halfD},
+                {halfW,  halfH,  halfD}, {-halfW,  halfH,  halfD}
         };
-    }
 
-    private static float[] createCylinderNormals(float[] vertices) {
-        float[] normals = new float[vertices.length];
-        for (int i = 0; i < vertices.length / 3; i++) {
-            float x = vertices[i*3];
-            float z = vertices[i*3+2];
-            float len = (float)Math.sqrt(x*x + z*z);
-            if (len > 0.01f) {
-                normals[i*3] = x / len;
-                normals[i*3+2] = z / len;
-            }
+        for (float[] v : vertices) {
+            float rx = (float)(v[0] * Math.cos(rotation) - v[2] * Math.sin(rotation));
+            float ry = v[1];
+            float rz = (float)(v[0] * Math.sin(rotation) + v[2] * Math.cos(rotation));
+
+            verts.add(x + rx);
+            verts.add(y + ry);
+            verts.add(z + rz);
         }
-        return normals;
-    }
 
-    private static float[] createCylinderTexCoords(float[] vertices) {
-        float[] texCoords = new float[vertices.length / 3 * 2];
-        for (int i = 0; i < vertices.length / 3; i++) {
-            float angle = (float)Math.atan2(vertices[i*3+2], vertices[i*3]);
-            texCoords[i*2] = (angle + (float)Math.PI) / (2 * (float)Math.PI);
-            texCoords[i*2+1] = (vertices[i*3+1] + 0.5f);
-        }
-        return texCoords;
-    }
-
-    private static int[] createCylinderIndices(int segments) {
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < segments; i++) {
-            int next = (i + 1) % segments;
-            indices.add(i*2);
-            indices.add(next*2);
-            indices.add(next*2 + 1);
-            indices.add(i*2);
-            indices.add(next*2 + 1);
-            indices.add(i*2 + 1);
-        }
-        int[] result = new int[indices.size()];
-        for (int i = 0; i < indices.size(); i++) result[i] = indices.get(i);
-        return result;
-    }
-
-    private static float[] createBoxNormals() {
-        float[] normals = new float[24];
-        for (int i = 0; i < 4; i++) normals[i*3+2] = -1;
-        for (int i = 4; i < 8; i++) normals[i*3+2] = 1;
-        for (int i = 0; i < 8; i+=4) normals[i*3+1] = -1;
-        for (int i = 2; i < 8; i+=4) normals[i*3+1] = 1;
-        normals[0*3] = -1; normals[3*3] = -1; normals[4*3] = -1; normals[7*3] = -1;
-        normals[1*3] = 1; normals[2*3] = 1; normals[5*3] = 1; normals[6*3] = 1;
-        return normals;
-    }
-
-    private static float[] createBoxTexCoords() {
-        float[] texCoords = new float[16];
-        for (int i = 0; i < 4; i++) {
-            texCoords[i*2] = 0;
-            texCoords[i*2+1] = 0;
-        }
-        for (int i = 4; i < 8; i++) {
-            texCoords[i*2] = 1;
-            texCoords[i*2+1] = 1;
-        }
-        return texCoords;
-    }
-
-    private static int[] createBoxIndices() {
-        return new int[] {
-                0,1,2, 0,2,3,
-                4,6,5, 4,7,6,
-                0,4,1, 1,4,5,
-                3,2,7, 2,6,7,
-                0,3,4, 3,7,4,
-                1,5,2, 2,5,6
+        float[][] faceNormals = {
+                {0, 0, -1}, {0, 0, 1},
+                {-1, 0, 0}, {1, 0, 0},
+                {0, -1, 0}, {0, 1, 0}
         };
-    }
 
-    private static float[] createConeNormals(float[] vertices) {
-        return new float[vertices.length];
-    }
-
-    private static float[] createConeTexCoords(float[] vertices) {
-        return new float[vertices.length / 3 * 2];
-    }
-
-    private static int[] createConeIndices(int segments) {
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < segments; i++) {
-            int next = (i + 1) % segments;
-            indices.add(i);
-            indices.add(next);
-            indices.add(segments);
-        }
-        int[] result = new int[indices.size()];
-        for (int i = 0; i < indices.size(); i++) result[i] = indices.get(i);
-        return result;
-    }
-
-    private static float[] createSphereNormals(float[] vertices) {
-        float[] normals = new float[vertices.length];
-        for (int i = 0; i < vertices.length / 3; i++) {
-            float x = vertices[i*3];
-            float y = vertices[i*3+1];
-            float z = vertices[i*3+2];
-            float len = (float)Math.sqrt(x*x + y*y + z*z);
-            if (len > 0.01f) {
-                normals[i*3] = x / len;
-                normals[i*3+1] = y / len;
-                normals[i*3+2] = z / len;
+        for (float[] fn : faceNormals) {
+            for (int i = 0; i < 4; i++) {
+                norms.add(fn[0]);
+                norms.add(fn[1]);
+                norms.add(fn[2]);
             }
         }
-        return normals;
-    }
 
-    private static float[] createSphereTexCoords(float[] vertices) {
-        float[] texCoords = new float[vertices.length / 3 * 2];
-        for (int i = 0; i < vertices.length / 3; i++) {
-            float u = (float)(Math.atan2(vertices[i*3+2], vertices[i*3]) / (2 * Math.PI) + 0.5);
-            float v = (float)(Math.asin(vertices[i*3+1]) / Math.PI + 0.5);
-            texCoords[i*2] = u;
-            texCoords[i*2+1] = v;
-        }
-        return texCoords;
-    }
-
-    private static int[] createSphereIndices(int rings, int sectors) {
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < rings; i++) {
-            for (int j = 0; j < sectors; j++) {
-                int p1 = i * (sectors + 1) + j;
-                int p2 = p1 + 1;
-                int p3 = (i + 1) * (sectors + 1) + j;
-                int p4 = p3 + 1;
-                indices.add(p1);
-                indices.add(p3);
-                indices.add(p4);
-                indices.add(p1);
-                indices.add(p4);
-                indices.add(p2);
+        float[] texCoords = {0,0, 1,0, 1,1, 0,1};
+        for (int i = 0; i < 6; i++) {
+            for (float tc : texCoords) {
+                texs.add(tc);
             }
         }
-        int[] result = new int[indices.size()];
-        for (int i = 0; i < indices.size(); i++) result[i] = indices.get(i);
-        return result;
+
+        int[][] indices = {
+                {0,1,2, 0,2,3}, {4,6,5, 4,7,6},
+                {0,4,1, 1,4,5}, {3,2,7, 2,6,7},
+                {0,3,4, 3,7,4}, {1,5,2, 2,5,6}
+        };
+
+        int baseIndex = verts.size() / 3 - 8;
+        for (int[] idx : indices) {
+            for (int i : idx) {
+                idxs.add(baseIndex + i);
+            }
+        }
+
+        addMeshPart(data, verts, norms, texs, idxs, color);
     }
 
-    private static float[] createHemisphereNormals(float[] vertices) {
-        return createSphereNormals(vertices);
-    }
+    private static void addMeshPart(ModelData data, List<Float> verts, List<Float> norms,
+                                    List<Float> texs, List<Integer> idxs, float[] color) {
+        float[] vArray = new float[verts.size()];
+        for (int i = 0; i < verts.size(); i++) vArray[i] = verts.get(i);
 
-    private static float[] createHemisphereTexCoords(float[] vertices) {
-        return createSphereTexCoords(vertices);
-    }
+        float[] nArray = new float[norms.size()];
+        for (int i = 0; i < norms.size(); i++) nArray[i] = norms.get(i);
 
-    private static int[] createHemisphereIndices(int rings, int sectors) {
-        return createSphereIndices(rings/2, sectors);
+        float[] tArray = new float[texs.size()];
+        for (int i = 0; i < texs.size(); i++) tArray[i] = texs.get(i);
+
+        int[] iArray = new int[idxs.size()];
+        for (int i = 0; i < idxs.size(); i++) iArray[i] = idxs.get(i);
+
+        data.verticesList.add(vArray);
+        data.normalsList.add(nArray);
+        data.texCoordsList.add(tArray);
+        data.indicesList.add(iArray);
+        data.colors.add(color);
+        data.transforms.add(new Matrix4f().identity());
     }
 }

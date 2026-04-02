@@ -4,6 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LibraryItem {
+
+    public enum MountType {
+        FLOOR,
+        WALL,
+        CEILING
+    }
+
     private String id;
     private String name;
     private ItemCategory category;
@@ -11,14 +18,15 @@ public class LibraryItem {
     private float defaultScale;
     private float defaultYOffset;
     private String thumbnail;
-    private float width;   // ширина (м)
-    private float depth;   // глубина (м)
-    private float height;  // высота (м)
+    private float width;
+    private float depth;
+    private float height;
+    private MountType mountType;
     private Map<String, Object> defaultParams;
 
     public LibraryItem(String id, String name, ItemCategory category,
                        String modelPath, float defaultScale, float defaultYOffset,
-                       String thumbnail, float width, float depth, float height) {
+                       String thumbnail, float width, float depth, float height, MountType mountType) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -29,6 +37,7 @@ public class LibraryItem {
         this.width = width;
         this.depth = depth;
         this.height = height;
+        this.mountType = mountType;
         this.defaultParams = new HashMap<>();
 
         if (category == ItemCategory.LAMP) {
@@ -38,7 +47,6 @@ public class LibraryItem {
         }
     }
 
-    // Геттеры
     public String getId() { return id; }
     public String getName() { return name; }
     public ItemCategory getCategory() { return category; }
@@ -49,5 +57,6 @@ public class LibraryItem {
     public float getWidth() { return width; }
     public float getDepth() { return depth; }
     public float getHeight() { return height; }
+    public MountType getMountType() { return mountType; }
     public Map<String, Object> getDefaultParams() { return defaultParams; }
 }

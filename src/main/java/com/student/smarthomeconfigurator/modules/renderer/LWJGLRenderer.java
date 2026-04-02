@@ -338,7 +338,7 @@ public class LWJGLRenderer implements MapRenderer {
 
     private void initOpenGL() {
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -422,10 +422,10 @@ public class LWJGLRenderer implements MapRenderer {
             }
         }
 
-        // Загружаем мебель
         for (FurnitureItem item : currentBuildingProject.getFurniture()) {
+
             if (item.getCategory().equals("lamp")) {
-                float[] pos = {item.getX(), item.getY() + 0.5f, item.getZ()};
+                float[] pos = {item.getX(), item.getY(), item.getZ()};
                 LampObject lamp = new LampObject(meshes.size(), pos, item.getName());
                 lampObjects.add(lamp);
             }
@@ -440,12 +440,13 @@ public class LWJGLRenderer implements MapRenderer {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("❌ Ошибка загрузки мебели: " + item.getName() + " - " + e.getMessage());
+                System.err.println("Ошибка загрузки мебели: " + item.getName() + " - " + e.getMessage());
+                e.printStackTrace();
                 createDefaultCube(item);
             }
         }
 
-        System.out.println("✅ 3D сцена загружена: стен=" + currentBuildingProject.getWalls().size() +
+        System.out.println("3D сцена загружена: стен=" + currentBuildingProject.getWalls().size() +
                 ", предметов=" + currentBuildingProject.getFurniture().size() +
                 ", ламп=" + lampObjects.size());
     }

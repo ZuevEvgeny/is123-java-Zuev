@@ -1,5 +1,4 @@
 package com.student.smarthomeconfigurator.modules.renderer;
-
 import com.student.smarthomeconfigurator.library.ItemCategory;
 import com.student.smarthomeconfigurator.model.Project;
 import com.student.smarthomeconfigurator.model.building.*;
@@ -20,7 +19,6 @@ import javafx.scene.Cursor;
 import java.util.*;
 
 public class PlanEditor implements MapRenderer {
-
     public enum Tool {
         SELECT, WALL, ROOM, FURNITURE, LAMP, SENSOR, DOOR, WINDOW
     }
@@ -47,7 +45,6 @@ public class PlanEditor implements MapRenderer {
     private VBox toolBox;
     private VBox propertiesPanel;
 
-    // Для перетаскивания стен и углов
     private WallSegment draggingWall = null;
     private Point2DData draggedVertex = null;
     private WallSegment draggedWallForVertex = null;
@@ -55,28 +52,30 @@ public class PlanEditor implements MapRenderer {
     private double dragStartX, dragStartY;
     private boolean isDragging = false;
 
-    // Для панорамирования и масштабирования
     private double viewOffsetX = 0;
     private double viewOffsetY = 0;
     private double viewScale = 1.0;
     private double lastPanX, lastPanY;
     private boolean isPanning = false;
 
-    // Для превью размещения
     private boolean isPlacementValid = true;
     private float previewX, previewZ;
-    private float previewRotation = 0; // градусы
+    private float previewRotation = 0;
 
-    // Флаг для предотвращения рекурсивных обновлений
     private boolean isUpdatingProperties = false;
 
     private static final float WORLD_MIN = -12;
     private static final float WORLD_MAX = 12;
     private static final float WORLD_SIZE = WORLD_MAX - WORLD_MIN;
     private static final float SNAP_DISTANCE = 0.5f;
+    private LWJGLRenderer lwjglRenderer;
 
     public PlanEditor() {
         this.buildingProject = new BuildingProject("Новый проект");
+    }
+
+    public void setLwjglRenderer(LWJGLRenderer renderer) {
+        this.lwjglRenderer = renderer;
     }
 
     @Override
@@ -106,7 +105,6 @@ public class PlanEditor implements MapRenderer {
         canvas.setOnMouseMoved(this::onMouseMoved);
         canvas.setOnScroll(this::onScroll);
 
-        // Обработка клавиш для поворота
         canvas.setOnKeyPressed(e -> {
             if (currentTool == Tool.FURNITURE || currentTool == Tool.LAMP || currentTool == Tool.SENSOR) {
                 if (selectedFurniture != null) {
@@ -116,7 +114,7 @@ public class PlanEditor implements MapRenderer {
                         updatePreviewCollision();
                         draw();
                         if (statusLabel != null) {
-                            statusLabel.setText("🔁 Поворот: " + (int)previewRotation + "°");
+                            statusLabel.setText("Поворот: " + (int)previewRotation + "°");
                         }
                         e.consume();
                     } else if (e.getCode() == javafx.scene.input.KeyCode.SHIFT) {
@@ -125,7 +123,7 @@ public class PlanEditor implements MapRenderer {
                         updatePreviewCollision();
                         draw();
                         if (statusLabel != null) {
-                            statusLabel.setText("🔁 Поворот: " + (int)previewRotation + "°");
+                            statusLabel.setText("Поворот: " + (int)previewRotation + "°");
                         }
                         e.consume();
                     }
@@ -249,7 +247,7 @@ public class PlanEditor implements MapRenderer {
     }
 
     private void createUI() {
-        statusLabel = new Label("🏠 Инструмент: Комната (кликайте по углам, клик на первую точку для завершения)");
+        statusLabel = new Label("Инструмент: Комната (кликайте по углам, клик на первую точку для завершения)");
         statusLabel.setStyle("-fx-background-color: rgba(0,0,0,0.7); -fx-text-fill: #ffaa00; -fx-padding: 8; -fx-background-radius: 5; -fx-font-size: 12px;");
         statusLabel.setLayoutX(10);
         statusLabel.setLayoutY(10);
@@ -265,36 +263,36 @@ public class PlanEditor implements MapRenderer {
         toolTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
         toolBox.getChildren().add(toolTitle);
 
-        Button btnSelect = createToolButton("🔍 ВЫБОР", Tool.SELECT, "#607D8B");
-        Button btnRoom = createToolButton("🏠 КОМНАТА", Tool.ROOM, "#4CAF50");
-        Button btnWall = createToolButton("📏 СТЕНА", Tool.WALL, "#FF5722");
-        Button btnFurniture = createToolButton("🪑 МЕБЕЛЬ", Tool.FURNITURE, "#795548");
-        Button btnLamp = createToolButton("💡 ЛАМПА", Tool.LAMP, "#FF9800");
-        Button btnSensor = createToolButton("📡 ДАТЧИК", Tool.SENSOR, "#00BCD4");
-        Button btnDoor = createToolButton("🚪 ДВЕРЬ", Tool.DOOR, "#8B4513");
-        Button btnWindow = createToolButton("🪟 ОКНО", Tool.WINDOW, "#87CEEB");
+        Button btnSelect = createToolButton("ВЫБОР", Tool.SELECT, "#607D8B");
+        Button btnRoom = createToolButton("КОМНАТА", Tool.ROOM, "#4CAF50");
+        Button btnWall = createToolButton("СТЕНА", Tool.WALL, "#FF5722");
+        Button btnFurniture = createToolButton("МЕБЕЛЬ", Tool.FURNITURE, "#795548");
+        Button btnLamp = createToolButton("ЛАМПА", Tool.LAMP, "#FF9800");
+        Button btnSensor = createToolButton("ДАТЧИК", Tool.SENSOR, "#00BCD4");
+        Button btnDoor = createToolButton("ДВЕРЬ", Tool.DOOR, "#8B4513");
+        Button btnWindow = createToolButton("ОКНО", Tool.WINDOW, "#87CEEB");
 
         toolBox.getChildren().addAll(btnSelect, btnRoom, btnWall, btnFurniture, btnLamp, btnSensor, btnDoor, btnWindow);
 
-        Button btnGenerateWalls = new Button("🧱 СТЕНЫ ИЗ КОМНАТЫ");
+        Button btnGenerateWalls = new Button("СТЕНЫ ИЗ КОМНАТЫ");
         btnGenerateWalls.setMaxWidth(Double.MAX_VALUE);
         btnGenerateWalls.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8; -fx-cursor: hand; -fx-background-radius: 5;");
         btnGenerateWalls.setOnAction(e -> {
             if (selectedRoom != null) {
                 generateWallsFromRoom(selectedRoom);
             } else if (statusLabel != null) {
-                statusLabel.setText("⚠️ Сначала выберите комнату инструментом ВЫБОР");
+                statusLabel.setText("Сначала выберите комнату инструментом ВЫБОР");
             }
         });
         toolBox.getChildren().add(btnGenerateWalls);
 
-        Button btnDelete = new Button("🗑️ УДАЛИТЬ ВЫБРАННОЕ");
+        Button btnDelete = new Button("УДАЛИТЬ ВЫБРАННОЕ");
         btnDelete.setMaxWidth(Double.MAX_VALUE);
         btnDelete.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8; -fx-cursor: hand; -fx-background-radius: 5;");
         btnDelete.setOnAction(e -> deleteSelected());
         toolBox.getChildren().add(btnDelete);
 
-        Button btnResetView = new Button("🎯 СБРОС ВИДА");
+        Button btnResetView = new Button("СБРОС ВИДА");
         btnResetView.setMaxWidth(Double.MAX_VALUE);
         btnResetView.setStyle("-fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8; -fx-cursor: hand; -fx-background-radius: 5;");
         btnResetView.setOnAction(e -> {
@@ -302,11 +300,11 @@ public class PlanEditor implements MapRenderer {
             viewOffsetY = 0;
             viewScale = 1.0;
             draw();
-            if (statusLabel != null) statusLabel.setText("👁️ Вид сброшен");
+            if (statusLabel != null) statusLabel.setText("Вид сброшен");
         });
         toolBox.getChildren().add(btnResetView);
 
-        Button btnClear = new Button("🗑️ ОЧИСТИТЬ ВСЁ");
+        Button btnClear = new Button("ОЧИСТИТЬ ВСЁ");
         btnClear.setMaxWidth(Double.MAX_VALUE);
         btnClear.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8; -fx-cursor: hand; -fx-background-radius: 5;");
         btnClear.setOnAction(e -> clearAll());
@@ -320,7 +318,7 @@ public class PlanEditor implements MapRenderer {
         furnitureBox.setLayoutY(50);
         furnitureBox.setPrefWidth(200);
 
-        Label furnitureTitle = new Label("📦 БИБЛИОТЕКА");
+        Label furnitureTitle = new Label("БИБЛИОТЕКА");
         furnitureTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
         furnitureBox.getChildren().add(furnitureTitle);
 
@@ -330,7 +328,7 @@ public class PlanEditor implements MapRenderer {
 
         ItemLibrary lib = ItemLibrary.getInstance();
         for (LibraryItem item : lib.getAllItems()) {
-            furnitureList.getItems().add(getCategoryIcon(item.getCategory()) + " " + item.getName());
+            furnitureList.getItems().add(getCategoryIcon(item.getCategory()) + "  " + item.getName());
         }
 
         furnitureList.setOnMouseClicked(e -> {
@@ -498,6 +496,13 @@ public class PlanEditor implements MapRenderer {
             draw();
         });
 
+        Label posLabel = new Label(String.format("Позиция: X=%.2f Y=%.2f Z=%.2f",
+                item.getX(), item.getY(), item.getZ()));
+        posLabel.setStyle("-fx-text-fill: #ffaa00; -fx-font-size: 10px;");
+
+        Label surfaceLabel = new Label("Поверхность: " + item.getParam("placementSurface"));
+        surfaceLabel.setStyle("-fx-text-fill: #00aaff; -fx-font-size: 10px;");
+
         Label scaleLabel = new Label("Масштаб:");
         scaleLabel.setStyle("-fx-text-fill: #aaa; -fx-font-size: 11px;");
         Slider scaleSlider = new Slider(0.5, 2.0, item.getScale());
@@ -505,6 +510,9 @@ public class PlanEditor implements MapRenderer {
         scaleSlider.valueProperty().addListener((obs, old, newVal) -> {
             item.setScale((float)newVal.doubleValue());
             draw();
+            if (lwjglRenderer != null) {
+                lwjglRenderer.loadBuildingProject(buildingProject);
+            }
         });
 
         Label rotLabel = new Label("Поворот (градусы):");
@@ -513,11 +521,28 @@ public class PlanEditor implements MapRenderer {
         rotSlider.setShowTickLabels(true);
         rotSlider.setShowTickMarks(true);
         rotSlider.setMajorTickUnit(90);
-        rotSlider.setMinorTickCount(3);
-        rotSlider.setStyle("-fx-control-inner-background: #3a3a4a;");
         rotSlider.valueProperty().addListener((obs, old, newVal) -> {
             item.setRotation((float) Math.toRadians(newVal.doubleValue()));
             draw();
+            if (lwjglRenderer != null) {
+                lwjglRenderer.loadBuildingProject(buildingProject);
+            }
+        });
+
+        Button refresh3D = new Button("Обновить в 3D");
+        refresh3D.setMaxWidth(Double.MAX_VALUE);
+        refresh3D.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 6;");
+        refresh3D.setOnAction(e -> {
+            if (lwjglRenderer != null) {
+                lwjglRenderer.loadBuildingProject(buildingProject);
+                if (statusLabel != null) {
+                    statusLabel.setText("3D вид обновлен");
+                }
+            } else {
+                if (statusLabel != null) {
+                    statusLabel.setText("3D рендерер не активен");
+                }
+            }
         });
 
         Button deleteBtn = new Button("УДАЛИТЬ");
@@ -528,10 +553,14 @@ public class PlanEditor implements MapRenderer {
             selectedItem = null;
             propertiesPanel.setVisible(false);
             draw();
-            if (statusLabel != null) statusLabel.setText("🗑️ Предмет удален");
+            if (lwjglRenderer != null) {
+                lwjglRenderer.loadBuildingProject(buildingProject);
+            }
+            if (statusLabel != null) statusLabel.setText("Предмет удален");
         });
 
-        propertiesPanel.getChildren().addAll(nameLabel, nameField, scaleLabel, scaleSlider, rotLabel, rotSlider, deleteBtn);
+        propertiesPanel.getChildren().addAll(nameLabel, nameField, posLabel, surfaceLabel,
+                scaleLabel, scaleSlider, rotLabel, rotSlider, refresh3D, deleteBtn);
     }
 
     private void deleteSelected() {
@@ -545,17 +574,17 @@ public class PlanEditor implements MapRenderer {
             buildingProject.getWalls().removeAll(wallsToRemove);
             buildingProject.getRooms().remove(selectedRoom);
             selectedRoom = null;
-            if (statusLabel != null) statusLabel.setText("✅ Комната и ее стены удалены");
+            if (statusLabel != null) statusLabel.setText("Комната и ее стены удалены");
         } else if (selectedWall != null) {
             buildingProject.getWalls().remove(selectedWall);
             selectedWall = null;
-            if (statusLabel != null) statusLabel.setText("✅ Стена удалена");
+            if (statusLabel != null) statusLabel.setText("Стена удалена");
         } else if (selectedItem != null) {
             buildingProject.getFurniture().remove(selectedItem);
             selectedItem = null;
-            if (statusLabel != null) statusLabel.setText("✅ Предмет удален");
+            if (statusLabel != null) statusLabel.setText("Предмет удален");
         } else {
-            if (statusLabel != null) statusLabel.setText("⚠️ Ничего не выбрано для удаления");
+            if (statusLabel != null) statusLabel.setText("Ничего не выбрано для удаления");
         }
 
         updatePropertiesPanel();
@@ -634,7 +663,7 @@ public class PlanEditor implements MapRenderer {
         List<Point2DData> vertices = room.getVertices();
         if (vertices.size() < 3) {
             if (statusLabel != null) {
-                statusLabel.setText("⚠️ Комната должна иметь хотя бы 3 угла");
+                statusLabel.setText("Комната должна иметь хотя бы 3 угла");
             }
             return;
         }
@@ -671,7 +700,7 @@ public class PlanEditor implements MapRenderer {
                     wall.setOpeningWidth(0.9f);
                     wall.setOpeningHeight(2.0f);
                     if (statusLabel != null) {
-                        statusLabel.setText("🚪 Создан дверной проем");
+                        statusLabel.setText("Создан дверной проем");
                     }
                 }
 
@@ -681,7 +710,7 @@ public class PlanEditor implements MapRenderer {
 
         draw();
         if (statusLabel != null) {
-            statusLabel.setText("✅ Создано " + buildingProject.getWalls().size() + " стен");
+            statusLabel.setText("Создано " + buildingProject.getWalls().size() + " стен");
         }
     }
 
@@ -732,14 +761,14 @@ public class PlanEditor implements MapRenderer {
 
     private String getToolMessage(Tool tool) {
         switch (tool) {
-            case ROOM: return "🏠 Комната: кликайте по углам, клик на первую точку для завершения";
-            case WALL: return "📏 Стена: клик для начала, клик для завершения";
-            case FURNITURE: return "🪑 Выберите мебель в библиотеке справа, клик для размещения (R/Shift - поворот)";
-            case LAMP: return "💡 Выберите лампу в библиотеке справа, клик для размещения (R/Shift - поворот)";
-            case SENSOR: return "📡 Выберите датчик в библиотеке справа, клик для размещения (R/Shift - поворот)";
-            case SELECT: return "🔍 Режим выбора: кликните на объект для выделения, перетаскивайте углы или стены";
-            case DOOR: return "🚪 Кликните на стену, чтобы добавить дверь";
-            case WINDOW: return "🪟 Кликните на стену, чтобы добавить окно";
+            case ROOM: return "Комната: кликайте по углам, клик на первую точку для завершения";
+            case WALL: return "Стена: клик для начала, клик для завершения";
+            case FURNITURE: return "Выберите мебель в библиотеке справа, клик для размещения (R/Shift - поворот)";
+            case LAMP: return "Выберите лампу в библиотеке справа, клик для размещения (R/Shift - поворот)";
+            case SENSOR: return "Выберите датчик в библиотеке справа, клик для размещения (R/Shift - поворот)";
+            case SELECT: return "Режим выбора: кликните на объект для выделения, перетаскивайте углы или стены";
+            case DOOR: return "Кликните на стену, чтобы добавить дверь";
+            case WINDOW: return "Кликните на стену, чтобы добавить окно";
             default: return "";
         }
     }
@@ -760,20 +789,66 @@ public class PlanEditor implements MapRenderer {
 
     private String getCategoryIcon(ItemCategory category) {
         switch (category) {
-            case LAMP: return "💡";
-            case SENSOR: return "📡";
-            case FURNITURE: return "🪑";
-            default: return "📦";
+            case LAMP: return "";
+            case SENSOR: return "";
+            case FURNITURE: return "";
+            default: return "";
         }
     }
 
+    private float[] findPlacementSurface(double x, double z, LibraryItem item) {
+        float[] result = new float[]{0, 0, 0};
+
+        for (FurnitureItem furniture : buildingProject.getFurniture()) {
+            boolean isSurface = furniture.getCategory().equals("furniture") &&
+                    (furniture.getLibraryId().contains("table") ||
+                            furniture.getLibraryId().contains("nightstand") ||
+                            furniture.getLibraryId().contains("desk") ||
+                            furniture.getLibraryId().contains("wardrobe") ||
+                            furniture.getLibraryId().contains("shelf"));
+
+            if (!isSurface) continue;
+
+            ItemLibrary lib = ItemLibrary.getInstance();
+            LibraryItem surfaceItem = lib.getItem(furniture.getLibraryId());
+            if (surfaceItem == null) continue;
+
+            float surfaceWidth = surfaceItem.getWidth() * furniture.getScale();
+            float surfaceDepth = surfaceItem.getDepth() * furniture.getScale();
+            float surfaceHeight = surfaceItem.getHeight() * furniture.getScale();
+
+            float halfW = surfaceWidth / 2;
+            float halfD = surfaceDepth / 2;
+
+            if (Math.abs(x - furniture.getX()) < halfW &&
+                    Math.abs(z - furniture.getZ()) < halfD) {
+                result[0] = furniture.getX();
+                result[1] = surfaceHeight;
+                result[2] = furniture.getZ();
+                return result;
+            }
+        }
+
+        return result;
+    }
+
     private void placeItem(double x, double y, Tool tool) {
-        if (selectedFurniture == null) return;
+        if (selectedFurniture == null) {
+            if (statusLabel != null) {
+                statusLabel.setText("Сначала выберите предмет в библиотеке");
+            }
+            return;
+        }
 
         ItemLibrary lib = ItemLibrary.getInstance();
         LibraryItem libItem = lib.getItem(selectedFurniture.getId());
 
-        if (libItem == null) return;
+        if (libItem == null) {
+            if (statusLabel != null) {
+                statusLabel.setText("Ошибка: предмет не найден в библиотеке");
+            }
+            return;
+        }
 
         float width = libItem.getWidth() * selectedFurniture.getDefaultScale();
         float depth = libItem.getDepth() * selectedFurniture.getDefaultScale();
@@ -781,89 +856,163 @@ public class PlanEditor implements MapRenderer {
 
         float finalX = (float) x;
         float finalZ = (float) y;
-        float finalY = libItem.getDefaultYOffset();
+        float finalY = 0;
         float finalRotation = rotationRad;
         String placementSurface = "floor";
 
-        // Для ламп и датчиков проверяем близость к стенам
-        if (tool == Tool.LAMP || tool == Tool.SENSOR) {
-            WallSegment nearestWall = null;
-            double minDist = 0.5;
-            double hitX = x, hitZ = y;
+        float roomHeight = 2.7f;
+        if (!buildingProject.getRooms().isEmpty()) {
+            roomHeight = buildingProject.getRooms().get(0).getCeilingHeight();
+        }
 
-            for (WallSegment wall : buildingProject.getWalls()) {
-                double dist = pointToLineDistance(x, y, wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
-                if (dist < minDist) {
-                    minDist = dist;
-                    nearestWall = wall;
-                    double[] proj = projectPointOnSegment(x, y, wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
-                    if (proj != null) {
-                        hitX = proj[0];
-                        hitZ = proj[1];
-                    }
-                    double wallAngle = Math.atan2(wall.getZ2() - wall.getZ1(), wall.getX2() - wall.getX1());
-                    finalRotation = (float) wallAngle;
-                }
-            }
-
-            // Если близко к стене - размещаем на стене
-            if (nearestWall != null && minDist < 0.5) {
-                placementSurface = "wall";
-                finalX = (float) hitX;
-                finalZ = (float) hitZ;
-                double perpX = -Math.sin(finalRotation);
-                double perpZ = Math.cos(finalRotation);
-                float offset = depth / 2;
-                finalX += perpX * offset;
-                finalZ += perpZ * offset;
-                // Высота на стене - для датчиков 1.2м, для ламп 1.5м
-                if (tool == Tool.LAMP) {
-                    finalY = 1.5f;
-                } else {
-                    finalY = 1.2f;
-                }
-            }
-            // Иначе проверяем потолок (если предмет должен быть на потолке)
-            else if (libItem.getDefaultYOffset() >= 2.0f) {
-                placementSurface = "ceiling";
-                finalY = libItem.getDefaultYOffset();
-                // На потолке поворот не нужен
-                finalRotation = 0;
-            }
-            // Иначе на полу
-            else {
-                placementSurface = "floor";
-                finalY = 0;
+        if (libItem.getMountType() == LibraryItem.MountType.FLOOR) {
+            float[] surface = findPlacementSurface(x, y, libItem);
+            if (surface[1] > 0) {
+                finalX = surface[0];
+                finalZ = surface[2];
+                finalY = surface[1];
+                placementSurface = "on_surface";
             }
         }
 
-        // Проверка коллизий
-        boolean wallCollision = CollisionChecker.checkWallCollision(
-                finalX, finalZ, width, depth, finalRotation,
-                buildingProject.getWalls()
-        );
+        switch (libItem.getMountType()) {
+            case CEILING:
+                placementSurface = "ceiling";
+                finalY = roomHeight - (libItem.getHeight() * selectedFurniture.getDefaultScale()) / 2;
+                finalRotation = 0;
+                break;
+
+            case WALL:
+                placementSurface = "wall";
+                WallSegment nearestWall = null;
+                double minDist = 0.5;
+                double hitX = x, hitZ = y;
+                double wallAngle = 0;
+
+                for (WallSegment wall : buildingProject.getWalls()) {
+                    double dist = pointToLineDistance(x, y,
+                            wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
+                    if (dist < minDist) {
+                        minDist = dist;
+                        nearestWall = wall;
+                        double[] proj = projectPointOnSegment(x, y,
+                                wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
+                        if (proj != null) {
+                            hitX = proj[0];
+                            hitZ = proj[1];
+                        }
+                        wallAngle = Math.atan2(
+                                wall.getZ2() - wall.getZ1(),
+                                wall.getX2() - wall.getX1()
+                        );
+                        finalRotation = (float) wallAngle;
+                    }
+                }
+
+                if (nearestWall != null && minDist < 0.5) {
+                    finalX = (float) hitX;
+                    finalZ = (float) hitZ;
+
+                    RoomArea nearestRoom = null;
+                    double minRoomDist = Double.MAX_VALUE;
+
+                    for (RoomArea room : buildingProject.getRooms()) {
+                        if (isWallPartOfRoom(nearestWall, room)) {
+                            nearestRoom = room;
+                            break;
+                        }
+
+                        double centerX = 0, centerZ = 0;
+                        for (Point2DData p : room.getVertices()) {
+                            centerX += p.x;
+                            centerZ += p.y;
+                        }
+                        if (room.getVertices().size() > 0) {
+                            centerX /= room.getVertices().size();
+                            centerZ /= room.getVertices().size();
+                        }
+
+                        double distToRoom = Math.hypot(centerX - finalX, centerZ - finalZ);
+                        if (distToRoom < minRoomDist) {
+                            minRoomDist = distToRoom;
+                            nearestRoom = room;
+                        }
+                    }
+
+                    if (nearestRoom != null) {
+                        double perpX = -Math.sin(wallAngle);
+                        double perpZ = Math.cos(wallAngle);
+
+                        double roomCenterX = 0, roomCenterZ = 0;
+                        for (Point2DData p : nearestRoom.getVertices()) {
+                            roomCenterX += p.x;
+                            roomCenterZ += p.y;
+                        }
+                        if (nearestRoom.getVertices().size() > 0) {
+                            roomCenterX /= nearestRoom.getVertices().size();
+                            roomCenterZ /= nearestRoom.getVertices().size();
+                        }
+
+                        double toCenterX = roomCenterX - finalX;
+                        double toCenterZ = roomCenterZ - finalZ;
+
+                        double dot = toCenterX * perpX + toCenterZ * perpZ;
+                        if (dot < 0) {
+                            perpX = -perpX;
+                            perpZ = -perpZ;
+                        }
+
+                        float offset = depth / 2;
+                        finalX += perpX * offset;
+                        finalZ += perpZ * offset;
+                        finalY = libItem.getDefaultYOffset();
+                    }
+                } else {
+                    if (statusLabel != null) {
+                        statusLabel.setText("Настенный предмет нужно размещать на стене");
+                    }
+                    return;
+                }
+                break;
+
+            case FLOOR:
+            default:
+                if (placementSurface.equals("on_surface")) {
+                    // уже установлено
+                } else {
+                    finalY = 0;
+                }
+                break;
+        }
+
+        boolean wallCollision = false;
+        if (libItem.getMountType() != LibraryItem.MountType.WALL && !placementSurface.equals("on_surface")) {
+            wallCollision = CollisionChecker.checkWallCollision(
+                    finalX, finalZ, width, depth, finalRotation,
+                    buildingProject.getWalls()
+            );
+        }
 
         boolean furnitureCollision = CollisionChecker.checkFurnitureCollision(
                 finalX, finalZ, width, depth, finalRotation,
                 buildingProject.getFurniture(), null
         );
 
-        if (wallCollision) {
+        if (wallCollision && libItem.getMountType() != LibraryItem.MountType.WALL) {
             if (statusLabel != null) {
-                statusLabel.setText("❌ Нельзя разместить: пересечение со стеной");
+                statusLabel.setText("Нельзя разместить: пересечение со стеной");
             }
             return;
         }
 
         if (furnitureCollision) {
             if (statusLabel != null) {
-                statusLabel.setText("❌ Нельзя разместить: пересечение с мебелью");
+                statusLabel.setText("Нельзя разместить: пересечение с другим предметом");
             }
             return;
         }
 
         String category;
-
         switch (tool) {
             case LAMP:
                 category = "lamp";
@@ -886,17 +1035,22 @@ public class PlanEditor implements MapRenderer {
         item.setScale(selectedFurniture.getDefaultScale());
         item.setRotation(finalRotation);
         item.setParam("placementSurface", placementSurface);
+        item.setParam("roomHeight", roomHeight);
+        item.setParam("mountType", libItem.getMountType().toString());
 
         buildingProject.getFurniture().add(item);
         draw();
-
         previewRotation = 0;
 
         String surfaceName = placementSurface.equals("wall") ? "на стене" :
-                (placementSurface.equals("ceiling") ? "на потолке" : "на полу");
+                (placementSurface.equals("ceiling") ? "на потолке" :
+                        (placementSurface.equals("on_surface") ? "на поверхности" : "на полу"));
 
         if (statusLabel != null) {
-            statusLabel.setText("✅ Размещено: " + selectedFurniture.getName() + " (" + surfaceName + ")");
+            statusLabel.setText("Размещено: " + selectedFurniture.getName() + " (" + surfaceName +
+                    ", X=" + String.format("%.2f", finalX) +
+                    ", Z=" + String.format("%.2f", finalZ) +
+                    ", Y=" + String.format("%.2f", finalY) + ")");
         }
     }
 
@@ -927,16 +1081,16 @@ public class PlanEditor implements MapRenderer {
                 nearestWall.setType(WallSegment.WallType.DOOR);
                 nearestWall.setOpeningWidth(0.9f);
                 nearestWall.setOpeningHeight(2.0f);
-                if (statusLabel != null) statusLabel.setText(String.format("🚪 Дверь добавлена в %.0f%% стены", centerPos * 100));
+                if (statusLabel != null) statusLabel.setText(String.format("Дверь добавлена в %.0f%% стены", centerPos * 100));
             } else if (tool == Tool.WINDOW) {
                 nearestWall.setType(WallSegment.WallType.WINDOW);
                 nearestWall.setOpeningWidth(1.2f);
                 nearestWall.setOpeningHeight(1.5f);
-                if (statusLabel != null) statusLabel.setText(String.format("🪟 Окно добавлено в %.0f%% стены", centerPos * 100));
+                if (statusLabel != null) statusLabel.setText(String.format("Окно добавлено в %.0f%% стены", centerPos * 100));
             }
             draw();
         } else {
-            if (statusLabel != null) statusLabel.setText("⚠️ Кликните на стену");
+            if (statusLabel != null) statusLabel.setText("Кликните на стену");
         }
     }
 
@@ -966,13 +1120,13 @@ public class PlanEditor implements MapRenderer {
                         draggedWallForVertex = selectedWall;
                         draggedVertexIndex = 0;
                         isDragging = true;
-                        if (statusLabel != null) statusLabel.setText("🔍 Перетаскивание угла стены");
+                        if (statusLabel != null) statusLabel.setText("Перетаскивание угла стены");
                     } else if (distToEnd < 0.3) {
                         draggedVertex = new Point2DData(selectedWall.getX2(), selectedWall.getZ2());
                         draggedWallForVertex = selectedWall;
                         draggedVertexIndex = 1;
                         isDragging = true;
-                        if (statusLabel != null) statusLabel.setText("🔍 Перетаскивание угла стены");
+                        if (statusLabel != null) statusLabel.setText("Перетаскивание угла стены");
                     } else {
                         draggingWall = selectedWall;
                         dragStartX = x;
@@ -988,7 +1142,7 @@ public class PlanEditor implements MapRenderer {
                     x = snapped.x;
                     y = snapped.y;
                     if (statusLabel != null) {
-                        statusLabel.setText("🔗 Привязано к точке (" + String.format("%.1f", x) + ", " + String.format("%.1f", y) + ")");
+                        statusLabel.setText("Привязано к точке (" + String.format("%.1f", x) + ", " + String.format("%.1f", y) + ")");
                     }
                 }
 
@@ -1005,7 +1159,7 @@ public class PlanEditor implements MapRenderer {
                         currentRoomPoints.clear();
                         isDrawing = false;
                         draw();
-                        if (statusLabel != null) statusLabel.setText("✅ Комната добавлена, стены созданы");
+                        if (statusLabel != null) statusLabel.setText("Комната добавлена, стены созданы");
                         return;
                     }
                 }
@@ -1027,7 +1181,7 @@ public class PlanEditor implements MapRenderer {
                     buildingProject.getWalls().add(wall);
                     currentWallPoints.clear();
                     isDrawing = false;
-                    if (statusLabel != null) statusLabel.setText("✅ Стена добавлена");
+                    if (statusLabel != null) statusLabel.setText("Стена добавлена");
                     draw();
                 }
                 break;
@@ -1039,7 +1193,7 @@ public class PlanEditor implements MapRenderer {
                     canvas.requestFocus();
                     placeItem(x, y, currentTool);
                 } else if (statusLabel != null) {
-                    statusLabel.setText("⚠️ Сначала выберите предмет в библиотеке");
+                    statusLabel.setText("Сначала выберите предмет в библиотеке");
                 }
                 break;
 
@@ -1118,14 +1272,9 @@ public class PlanEditor implements MapRenderer {
         mouseWorldX = world.x;
         mouseWorldY = world.y;
 
-        if (currentTool == Tool.FURNITURE || currentTool == Tool.LAMP || currentTool == Tool.SENSOR) {
-            if (selectedFurniture != null) {
-                canvas.requestFocus();
-            }
-        }
-
         if ((currentTool == Tool.FURNITURE || currentTool == Tool.LAMP || currentTool == Tool.SENSOR)
                 && selectedFurniture != null) {
+            canvas.requestFocus();
 
             ItemLibrary lib = ItemLibrary.getInstance();
             LibraryItem libItem = lib.getItem(selectedFurniture.getId());
@@ -1138,51 +1287,55 @@ public class PlanEditor implements MapRenderer {
                 previewX = (float) mouseWorldX;
                 previewZ = (float) mouseWorldY;
 
-                String surface = "floor";
+                switch (libItem.getMountType()) {
+                    case CEILING:
+                        previewRotation = 0;
+                        isPlacementValid = true;
+                        break;
 
-                // Для ламп и датчиков определяем поверхность
-                if (currentTool == Tool.LAMP || currentTool == Tool.SENSOR) {
-                    WallSegment nearestWall = null;
-                    double minDist = 0.5;
+                    case WALL:
+                        WallSegment nearestWall = null;
+                        double minDist = 0.5;
 
-                    for (WallSegment wall : buildingProject.getWalls()) {
-                        double dist = pointToLineDistance(previewX, previewZ,
-                                wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
-                        if (dist < minDist) {
-                            minDist = dist;
-                            nearestWall = wall;
-                            double[] proj = projectPointOnSegment(previewX, previewZ,
+                        for (WallSegment wall : buildingProject.getWalls()) {
+                            double dist = pointToLineDistance(previewX, previewZ,
                                     wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
-                            if (proj != null) {
-                                previewX = (float) proj[0];
-                                previewZ = (float) proj[1];
+                            if (dist < minDist) {
+                                minDist = dist;
+                                nearestWall = wall;
+                                double[] proj = projectPointOnSegment(previewX, previewZ,
+                                        wall.getX1(), wall.getZ1(), wall.getX2(), wall.getZ2());
+                                if (proj != null) {
+                                    previewX = (float) proj[0];
+                                    previewZ = (float) proj[1];
+                                }
+                                double wallAngle = Math.atan2(wall.getZ2() - wall.getZ1(), wall.getX2() - wall.getX1());
+                                previewRotation = (float) Math.toDegrees(wallAngle);
+                                isPlacementValid = true;
                             }
-                            double wallAngle = Math.atan2(wall.getZ2() - wall.getZ1(), wall.getX2() - wall.getX1());
-                            rotationRad = (float) wallAngle;
-                            surface = "wall";
                         }
-                    }
 
-                    if (nearestWall != null && minDist < 0.5) {
-                        double perpX = -Math.sin(rotationRad);
-                        double perpZ = Math.cos(rotationRad);
-                        float offset = depth / 2;
-                        previewX += perpX * offset;
-                        previewZ += perpZ * offset;
-                    } else if (libItem.getDefaultYOffset() >= 2.0f) {
-                        surface = "ceiling";
-                    } else {
-                        surface = "floor";
-                    }
+                        if (nearestWall == null || minDist >= 0.5) {
+                            isPlacementValid = false;
+                        }
+                        break;
+
+                    case FLOOR:
+                    default:
+                        float[] surface = findPlacementSurface(previewX, previewZ, libItem);
+                        if (surface[1] > 0) {
+                            isPlacementValid = true;
+                        } else {
+                            isPlacementValid = !CollisionChecker.checkWallCollision(
+                                    previewX, previewZ, width, depth, rotationRad,
+                                    buildingProject.getWalls()
+                            ) && !CollisionChecker.checkFurnitureCollision(
+                                    previewX, previewZ, width, depth, rotationRad,
+                                    buildingProject.getFurniture(), null
+                            );
+                        }
+                        break;
                 }
-
-                isPlacementValid = !CollisionChecker.checkWallCollision(
-                        previewX, previewZ, width, depth, rotationRad,
-                        buildingProject.getWalls()
-                ) && !CollisionChecker.checkFurnitureCollision(
-                        previewX, previewZ, width, depth, rotationRad,
-                        buildingProject.getFurniture(), null
-                );
             }
         }
 
@@ -1195,7 +1348,7 @@ public class PlanEditor implements MapRenderer {
                 selectedWall = null;
                 selectedRoom = null;
                 selectedItem = item;
-                if (statusLabel != null) statusLabel.setText("🔍 Выбран: " + item.getName());
+                if (statusLabel != null) statusLabel.setText("Выбран: " + item.getName());
                 updatePropertiesPanel();
                 return;
             }
@@ -1206,7 +1359,7 @@ public class PlanEditor implements MapRenderer {
                 selectedWall = null;
                 selectedRoom = room;
                 selectedItem = null;
-                if (statusLabel != null) statusLabel.setText("🔍 Выбрана комната: " + room.getName());
+                if (statusLabel != null) statusLabel.setText("Выбрана комната: " + room.getName());
                 updatePropertiesPanel();
                 return;
             }
@@ -1218,7 +1371,7 @@ public class PlanEditor implements MapRenderer {
                 selectedWall = wall;
                 selectedRoom = null;
                 selectedItem = null;
-                if (statusLabel != null) statusLabel.setText("🔍 Выбрана стена");
+                if (statusLabel != null) statusLabel.setText("Выбрана стена");
                 updatePropertiesPanel();
                 return;
             }
@@ -1227,7 +1380,7 @@ public class PlanEditor implements MapRenderer {
         selectedWall = null;
         selectedRoom = null;
         selectedItem = null;
-        if (statusLabel != null) statusLabel.setText("🔍 Ничего не выбрано");
+        if (statusLabel != null) statusLabel.setText("Ничего не выбрано");
         updatePropertiesPanel();
     }
 
@@ -1271,7 +1424,7 @@ public class PlanEditor implements MapRenderer {
         selectedRoom = null;
         selectedItem = null;
         draw();
-        if (statusLabel != null) statusLabel.setText("🗑️ Все объекты удалены");
+        if (statusLabel != null) statusLabel.setText("Все объекты удалены");
         updatePropertiesPanel();
     }
 
@@ -1323,7 +1476,7 @@ public class PlanEditor implements MapRenderer {
                 gc.setFill(Color.rgb(100, 200, 100));
                 gc.fillRect(center.x - 8, center.y - 8, 16, 16);
                 gc.setFill(Color.WHITE);
-                gc.fillText("🚪", center.x - 5, center.y + 5);
+                gc.fillText("", center.x - 5, center.y + 5);
             } else if (wall.getType() == WallSegment.WallType.WINDOW) {
                 gc.setStroke(Color.rgb(100, 150, 255));
                 gc.setLineWidth(6);
@@ -1395,7 +1548,6 @@ public class PlanEditor implements MapRenderer {
             gc.fillText(icon, sp.x - 5, sp.y + 5);
         }
 
-        // Превью размещения предмета с поворотом
         if ((currentTool == Tool.FURNITURE || currentTool == Tool.LAMP || currentTool == Tool.SENSOR)
                 && selectedFurniture != null) {
             ItemLibrary lib = ItemLibrary.getInstance();
@@ -1405,13 +1557,11 @@ public class PlanEditor implements MapRenderer {
                 float width = libItem.getWidth() * selectedFurniture.getDefaultScale();
                 float depth = libItem.getDepth() * selectedFurniture.getDefaultScale();
                 float rotation = previewRotation;
-                float rotationRad = (float) Math.toRadians(rotation);
 
                 Point2DData sp = worldToScreen(previewX, previewZ);
                 float screenWidth = width * 20;
                 float screenDepth = depth * 20;
 
-                // Определяем цвет в зависимости от поверхности
                 Color previewColor;
                 if (currentTool == Tool.LAMP || currentTool == Tool.SENSOR) {
                     boolean nearWall = false;
@@ -1435,39 +1585,32 @@ public class PlanEditor implements MapRenderer {
                     previewColor = isPlacementValid ? Color.rgb(0, 255, 0, 0.4) : Color.rgb(255, 0, 0, 0.4);
                 }
 
-                // Сохраняем текущие трансформации
                 gc.save();
-
-                // Перемещаем в центр предмета
                 gc.translate(sp.x, sp.y);
                 gc.rotate(rotation);
 
-                // Рисуем прямоугольник
                 gc.setFill(previewColor);
                 gc.setStroke(isPlacementValid ? Color.GREEN : Color.RED);
                 gc.setLineWidth(2);
                 gc.fillRect(-screenWidth / 2, -screenDepth / 2, screenWidth, screenDepth);
                 gc.strokeRect(-screenWidth / 2, -screenDepth / 2, screenWidth, screenDepth);
 
-                // Рисуем стрелку направления
                 gc.setStroke(Color.YELLOW);
                 gc.setLineWidth(3);
                 double arrowLength = screenDepth / 2 + 8;
                 gc.strokeLine(0, 0, 0, arrowLength);
                 gc.fillPolygon(new double[]{-6, 0, 6}, new double[]{arrowLength - 8, arrowLength, arrowLength - 8}, 3);
 
-                // Подсказка о повороте
                 gc.setFill(Color.WHITE);
                 gc.setFont(Font.font(10));
+                gc.fillText("ПЕРЕД", -15, arrowLength + 5);
                 gc.fillText("R/Shift - поворот", -40, -screenDepth / 2 - 10);
                 gc.fillText("Поворот: " + (int)rotation + "°", -30, -screenDepth / 2 - 20);
 
-                // Восстанавливаем трансформации
                 gc.restore();
             }
         }
 
-        // Рисуем текущую комнату
         if (currentTool == Tool.ROOM && !currentRoomPoints.isEmpty()) {
             double[] xPoints = new double[currentRoomPoints.size() + 1];
             double[] yPoints = new double[currentRoomPoints.size() + 1];
@@ -1487,7 +1630,6 @@ public class PlanEditor implements MapRenderer {
             gc.strokePolygon(xPoints, yPoints, currentRoomPoints.size() + 1);
         }
 
-        // Рисуем текущую стену
         if (currentTool == Tool.WALL && !currentWallPoints.isEmpty()) {
             Point2DData start = worldToScreen(currentWallPoints.get(0).x, currentWallPoints.get(0).y);
             Point2DData end = worldToScreen(mouseWorldX, mouseWorldY);
@@ -1496,7 +1638,6 @@ public class PlanEditor implements MapRenderer {
             gc.strokeLine(start.x, start.y, end.x, end.y);
         }
 
-        // Показываем точку привязки
         if (currentTool == Tool.ROOM && !currentRoomPoints.isEmpty()) {
             Point2DData snapped = snapToNearestPoint(mouseWorldX, mouseWorldY);
             if (snapped != null) {
@@ -1509,7 +1650,6 @@ public class PlanEditor implements MapRenderer {
             }
         }
 
-        // Информация
         gc.setFill(Color.rgb(200, 200, 200));
         gc.setFont(Font.font(11));
         gc.fillText("Стен: " + buildingProject.getWalls().size() +
@@ -1527,7 +1667,7 @@ public class PlanEditor implements MapRenderer {
         this.buildingProject = project;
         draw();
         if (statusLabel != null) {
-            statusLabel.setText("✅ Проект загружен: " + project.getName());
+            statusLabel.setText("Проект загружен: " + project.getName());
         }
     }
 

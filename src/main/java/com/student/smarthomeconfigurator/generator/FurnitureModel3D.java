@@ -33,81 +33,115 @@ public class FurnitureModel3D {
 
         ItemLibrary lib = ItemLibrary.getInstance();
         LibraryItem libItem = lib.getItem(item.getLibraryId());
-        float yOffset = libItem != null ? libItem.getDefaultYOffset() : 0f;
-        float yPos = item.getY() == 0 ? yOffset : item.getY();
+
+        if (libItem == null) {
+            return createDefaultCubeList(item);
+        }
+
+        float x = item.getX();
+        float z = item.getZ();
+        float rotation = item.getRotation();
+        float scale = item.getScale();
+        float y = item.getY();
+
+        String placementSurface = (String) item.getParam("placementSurface");
+
+        System.out.println("Создание меша для: " + item.getName() +
+                " | Позиция: (" + x + ", " + y + ", " + z + ")" +
+                " | Поверхность: " + placementSurface +
+                " | Тип: " + libItem.getMountType());
+
+
+        Matrix4f transform = new Matrix4f()
+                .translate(x, y, z)
+                .rotateY(rotation);
 
         ProceduralModelGenerator.ModelData modelData = null;
 
         if (libItem != null) {
             switch (libItem.getId()) {
                 case "sofa_corner":
-                    modelData = ProceduralModelGenerator.createCornerSofa(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createCornerSofa(0, 0, 0, scale, 0);
                     break;
                 case "bed_double":
-                    modelData = ProceduralModelGenerator.createDoubleBed(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createDoubleBed(0, 0, 0, scale, 0);
                     break;
                 case "wardrobe":
-                    modelData = ProceduralModelGenerator.createWardrobe(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createWardrobe(0, 0, 0, scale, 0);
                     break;
                 case "shelf":
-                    modelData = ProceduralModelGenerator.createShelf(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createShelf(0, 0, 0, scale, 0);
                     break;
                 case "chair_modern":
-                    modelData = ProceduralModelGenerator.createChair(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createChair(0, 0, 0, scale, 0);
                     break;
                 case "table_dining":
-                    modelData = ProceduralModelGenerator.createTable(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createTable(0, 0, 0, scale, 0);
+                    break;
+                case "coffee_table":
+                    modelData = ProceduralModelGenerator.createCoffeeTable(0, 0, 0, scale, 0);
+                    break;
+                case "nightstand":
+                    modelData = ProceduralModelGenerator.createNightstand(0, 0, 0, scale, 0);
+                    break;
+                case "tv":
+                    modelData = ProceduralModelGenerator.createTV(0, 0, 0, scale, 0);
+                    break;
+                case "stove":
+                    modelData = ProceduralModelGenerator.createStove(0, 0, 0, scale, 0);
+                    break;
+                case "fridge":
+                    modelData = ProceduralModelGenerator.createFridge(0, 0, 0, scale, 0);
+                    break;
+                case "microwave":
+                    modelData = ProceduralModelGenerator.createMicrowave(0, 0, 0, scale, 0);
+                    break;
+                case "dishwasher":
+                    modelData = ProceduralModelGenerator.createDishwasher(0, 0, 0, scale, 0);
+                    break;
+                case "washing_machine":
+                    modelData = ProceduralModelGenerator.createWashingMachine(0, 0, 0, scale, 0);
                     break;
                 case "lamp_ceiling":
-                    modelData = ProceduralModelGenerator.createChandelier(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createChandelier(0, 0, 0, scale, 0);
                     break;
                 case "lamp_pendant":
-                    modelData = ProceduralModelGenerator.createPendantLamp(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createPendantLamp(0, 0, 0, scale, 0);
                     break;
                 case "lamp_desk":
-                    modelData = ProceduralModelGenerator.createDeskLamp(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createDeskLamp(0, 0, 0, scale, 0);
                     break;
                 case "lamp_floor":
-                    modelData = ProceduralModelGenerator.createFloorLamp(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createFloorLamp(0, 0, 0, scale, 0);
                     break;
                 case "lamp_spot":
-                    modelData = ProceduralModelGenerator.createSpotlight(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createSpotlight(0, 0, 0, scale, 0);
                     break;
                 case "sensor_motion":
-                    modelData = ProceduralModelGenerator.createMotionSensor(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createMotionSensor(0, 0, 0, scale, 0);
                     break;
                 case "sensor_temp":
-                    modelData = ProceduralModelGenerator.createTemperatureSensor(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createTemperatureSensor(0, 0, 0, scale, 0);
                     break;
                 case "sensor_smoke":
-                    modelData = ProceduralModelGenerator.createSmokeSensor(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createSmokeSensor(0, 0, 0, scale, 0);
                     break;
                 case "sensor_light":
-                    modelData = ProceduralModelGenerator.createLightSensor(item.getX(), yPos, item.getZ(),
-                            item.getScale(), item.getRotation());
+                    modelData = ProceduralModelGenerator.createLightSensor(0, 0, 0, scale, 0);
                     break;
                 default:
-                    meshes.add(createDefaultCube(item, yPos));
-                    return meshes;
+                    return createDefaultCubeList(item);
             }
         }
 
         if (modelData != null && !modelData.verticesList.isEmpty()) {
             for (int i = 0; i < modelData.verticesList.size(); i++) {
+
+                Matrix4f componentTransform = new Matrix4f(transform);
+                if (modelData.transforms != null && i < modelData.transforms.size() && modelData.transforms.get(i) != null) {
+                    componentTransform.mul(modelData.transforms.get(i));
+                }
+
                 meshes.add(new FurnitureMeshData(
                         modelData.verticesList.get(i),
                         modelData.normalsList.get(i),
@@ -116,21 +150,31 @@ public class FurnitureModel3D {
                         modelData.colors.get(i)[0],
                         modelData.colors.get(i)[1],
                         modelData.colors.get(i)[2],
-                        modelData.transforms.get(i)
+                        componentTransform
                 ));
             }
         } else {
-            meshes.add(createDefaultCube(item, yPos));
+            meshes = createDefaultCubeList(item);
         }
 
         return meshes;
     }
 
-    private static FurnitureMeshData createDefaultCube(FurnitureItem item, float yPos) {
-        float size = 0.4f * item.getScale();
+    private static List<FurnitureMeshData> createDefaultCubeList(FurnitureItem item) {
+        List<FurnitureMeshData> meshes = new ArrayList<>();
+        meshes.add(createDefaultCube(item));
+        return meshes;
+    }
+
+    private static FurnitureMeshData createDefaultCube(FurnitureItem item) {
+        float scale = item.getScale();
+        float size = 0.4f * scale;
         float x = item.getX();
-        float y = yPos + size;
+        float y = item.getY();
         float z = item.getZ();
+        float rotation = item.getRotation();
+
+        System.out.println("🔲 Создание куба для: " + item.getName() + " на позиции (" + x + ", " + y + ", " + z + ")");
 
         float[] vertices = {
                 -size, -size, -size,  size, -size, -size,  size,  size, -size, -size,  size, -size,
@@ -166,8 +210,7 @@ public class FurnitureModel3D {
 
         Matrix4f transform = new Matrix4f()
                 .translate(x, y, z)
-                .rotateY(item.getRotation())
-                .scale(item.getScale());
+                .rotateY(rotation);
 
         float r, g, b;
         switch (item.getCategory()) {
